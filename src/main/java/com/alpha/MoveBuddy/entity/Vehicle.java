@@ -1,0 +1,126 @@
+package com.alpha.MoveBuddy.entity;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+
+@Entity
+public class Vehicle {
+
+	@Id
+	@GeneratedValue (strategy = GenerationType.AUTO)
+	private int id;
+	private String name;
+	private String vehicleNo;
+	private String type;
+	private String model;
+	private int capacity;
+	private String currentCity;
+	private String availableStatus;
+	private int pricePerKM;
+	
+	@OneToOne
+	private Driver driver;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getVehicleNo() {
+		return vehicleNo;
+	}
+
+	public void setVehicleNo(String vehicleNo) {
+		this.vehicleNo = vehicleNo;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getModel() {
+		return model;
+	}
+
+	public void setModel(String model) {
+		this.model = model;
+	}
+
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public void setCapacity(int capacity) {
+		this.capacity = capacity;
+	}
+
+	public String getCurrentCity() {
+		return currentCity;
+	}
+
+	public void setCurrentCity(String currentCity) {
+		this.currentCity = currentCity;
+	}
+
+	public String getAvailableStatus() {
+		return availableStatus;
+	}
+
+	public void setAvailableStatus(String availableStatus) {
+		this.availableStatus = availableStatus;
+	}
+
+	public int getPricePerKM() {
+		return pricePerKM;
+	}
+
+	public void setPricePerKM(int pricePerKM) {
+		this.pricePerKM = pricePerKM;
+	}
+
+	public Driver getDriver() {
+		return driver;
+	}
+
+	public void setDriver(Driver driver) {
+		this.driver = driver;
+	}
+
+	public Vehicle(String name, String vehicleNo, String type, String model, int capacity, String currentCity,
+			String availableStatus, int pricePerKM, Driver driver) {
+		super();
+		this.name = name;
+		this.vehicleNo = vehicleNo;
+		this.type = type;
+		this.model = model;
+		this.capacity = capacity;
+		this.currentCity = currentCity;
+		this.availableStatus = availableStatus;
+		this.pricePerKM = pricePerKM;
+		this.driver = driver;
+	}
+
+	public Vehicle() {
+		super();
+	}
+	
+	@Override
+	public String toString() {
+		return "Vehicle [id=" + id + ", name=" + name + ", vehicleNo=" + vehicleNo + ", type=" + type + ", model="
+				+ model + ", capacity=" + capacity + ", currentCity=" + currentCity + ", availableStatus="
+				+ availableStatus + ", pricePerKM=" + pricePerKM + ", driver=" + driver + "]";
+	}
+	
+	
+	
+}
