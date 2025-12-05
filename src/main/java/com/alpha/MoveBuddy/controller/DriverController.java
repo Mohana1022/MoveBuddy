@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.service.DriverService;
-import com.alpha.MoveBuddy.service.LocationService;
 
 @RestController
 public class DriverController {
