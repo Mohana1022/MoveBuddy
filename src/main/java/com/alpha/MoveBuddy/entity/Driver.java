@@ -1,10 +1,15 @@
 package com.alpha.MoveBuddy.entity;
 
+import org.hibernate.annotations.Cascade;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -18,11 +23,13 @@ public class Driver {
 	private String name;
 	private String status="Available";
 	private int age;
-	private Long mobileno;
+	private long mobileno;
 	private String gender;
 	private String mailid;
 	
-	@OneToOne(cascade = CascadeType.ALL)
+	
+	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonIgnore
 	private Vehicle vehicle;
 
 	public long getLicenseNo() {

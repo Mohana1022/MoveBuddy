@@ -4,14 +4,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 
 @Entity
+
 public class Vehicle {
 
 	@Id
-	@GeneratedValue (strategy = GenerationType.AUTO)
 	private int id;
 	private String name;
 	private String vehicleNo;
@@ -22,8 +23,10 @@ public class Vehicle {
 	private String availableStatus="Available";
 	private int pricePerKM;
 	
+	
 	@OneToOne
 	@MapsId
+	@JoinColumn(name = "id") 
 	private Driver driver;
 
 	public String getName() {

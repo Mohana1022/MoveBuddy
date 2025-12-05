@@ -1,6 +1,7 @@
 package com.alpha.MoveBuddy.service;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,18 +10,22 @@ import org.springframework.web.client.RestTemplate;
 
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
 import com.alpha.MoveBuddy.Repository.DriverRepository;
+import com.alpha.MoveBuddy.Repository.VehicleRepository;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.entity.Vehicle;
+import com.alpha.MoveBuddy.exception.DriverNotFoundException;
+
 @Service
 public class DriverService {
 
     @Autowired
     private DriverRepository dr;
+    @Autowired
+    private VehicleRepository vr;
 
     @Value("${locationiq.api.key}")
     private String apiKey;
 
-    // --- Get city name from latitude & longitude ---
     public String getCityName(String string, String string2) {
 
         String url = "https://us1.locationiq.com/v1/reverse?key=" + apiKey +
@@ -71,4 +76,27 @@ public class DriverService {
         
         return dr.save(d);
     }
+    
+    
+    public Driver findDriverByMobile(long mobileNo) {
+        return dr.findByMobileno(mobileNo).orElseThrow(() -> 
+                     new DriverNotFoundException("Driver not found with mobile number: " + mobileNo));
+    }
+
+    
+    public String deleteDriver(long mobileNo) {
+
+        Driver driver = dr.findByMobileno(mobileNo).orElse(null);
+
+        if (driver != null) {
+            dr.delete(driver);
+            return "Driver deleted successfully";
+        }
+
+        return "Driver not found";
+    }
+
+
+
+    
 }
