@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -18,10 +19,11 @@ public class Vehicle {
 	private String model;
 	private int capacity;
 	private String currentCity;
-	private String availableStatus;
+	private String availableStatus="Available";
 	private int pricePerKM;
 	
 	@OneToOne
+	@MapsId
 	private Driver driver;
 
 	public String getName() {
