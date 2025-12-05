@@ -1,5 +1,6 @@
 package com.alpha.MoveBuddy.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,13 +16,13 @@ public class Driver {
 	private long licenseNo;
 	private String upiid;
 	private String name;
-	private String status;
+	private String status="Available";
 	private int age;
-	private long mobileno;
+	private Long mobileno;
 	private String gender;
 	private String mailid;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	private Vehicle vehicle;
 
 	public long getLicenseNo() {
@@ -64,11 +65,11 @@ public class Driver {
 		this.age = age;
 	}
 
-	public long getMobileno() {
+	public Long getMobileno() {
 		return mobileno;
 	}
 
-	public void setMobileno(long mobileno) {
+	public void setMobileno(Long mobileno) {
 		this.mobileno = mobileno;
 	}
 
@@ -96,7 +97,7 @@ public class Driver {
 		this.vehicle = vehicle;
 	}
 
-	public Driver(long licenseNo, String upiid, String name, String status, int age, long mobileno, String gender,
+	public Driver(long licenseNo, String upiid, String name, String status, int age, Long mobileno, String gender,
 			String mailid, Vehicle vehicle) {
 		super();
 		this.licenseNo = licenseNo;
@@ -117,9 +118,10 @@ public class Driver {
 	@Override
 	public String toString() {
 		return "Driver [id=" + id + ", licenseNo=" + licenseNo + ", upiid=" + upiid + ", name=" + name + ", status="
-				+ status + ", age=" + age + ", mobileno=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
+				+ status + ", age=" + age + ", mobileNo=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
 				+ ", vehicle=" + vehicle + "]";
 	}
+
 	
 	
 	
