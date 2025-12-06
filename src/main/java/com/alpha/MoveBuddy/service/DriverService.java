@@ -26,7 +26,9 @@ public class DriverService {
 
     @Value("${locationiq.api.key}")
     private String apiKey;
-
+    
+//TO GET THE CURRENT CITY
+    
     public String getCityName(String string, String string2) {
 
         String url = "https://us1.locationiq.com/v1/reverse?key=" + apiKey +
@@ -37,7 +39,6 @@ public class DriverService {
 
         Map<String, Object> address = (Map<String, Object>) response.get("address");
 
-        // Try city, town, village (sometimes city is not present)
         if (address.get("city") != null)
             return address.get("city").toString();
         else if (address.get("town") != null)
@@ -48,6 +49,8 @@ public class DriverService {
             return "Unknown";
     }
 
+    //SAVING THE DRIVER
+    
     public Driver saveDriverDTO(RegisterDriverVehicleDTO dto) {
 
         Driver d = new Driver();
@@ -78,13 +81,14 @@ public class DriverService {
         return dr.save(d);
     }
     
+    //FINDING THE DRIVER 
     
     public Driver findDriverByMobile(long mobileNo) {
         return dr.findByMobileno(mobileNo).orElseThrow(() -> 
                      new DriverNotFoundException("Driver not found with mobile number: " + mobileNo));
     }
 
-    
+    //deleting the driver by mobile number    
     public String deleteDriver(long mobileNo) {
 
         Driver driver = dr.findByMobileno(mobileNo).orElse(null);
@@ -97,9 +101,8 @@ public class DriverService {
         return "Driver not found";
     }
 
-
-<<<<<<< HEAD
-=======
+    //UPDATING THE VEHICLES LOCATION USING DRIVER'S MOBILE NUMBER
+    
 	public String updateDriverLocation(long mobileNo, String latitude, String longitude) {
 		
 		
@@ -123,6 +126,4 @@ public class DriverService {
 
 	}
 
-    
->>>>>>> e57855cd62532d5664d8ae325fd013aec1de8f90
 }

@@ -1,29 +1,29 @@
 package com.alpha.MoveBuddy.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import com.alpha.MoveBuddy.ResponseStructure;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(DriverNotFoundException.class)
-
-    public ResponseEntity<Map<String, Object>> handleDriverNotFound(DriverNotFoundException ex) {
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", "Driver Not Found");
-        body.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    @ExceptionHandler(DriverNotFoundException.class)
+    public ResponseStructure<String> handleDriverNotFound(DriverNotFoundException ex) {
+        ResponseStructure<String> response = new ResponseStructure<>();
+        response.setStatuscode(HttpStatus.NOT_FOUND.value());
+        response.setMessage("Driver not found");
+        response.setData(ex.getMessage());
+        return response;
     }
-	
 
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseStructure<String> handleCustomerNotFound(CustomerNotFoundException ex) {
+        ResponseStructure<String> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.NOT_FOUND.value());
+        rs.setMessage("Customer with given mobile number not found");
+        rs.setData(ex.getMessage());
+        return rs;
+    }
 }

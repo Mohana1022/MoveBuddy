@@ -4,6 +4,7 @@ public class CurrentLocationDTO {
 
 	private double latitude;
 	private double longitude;
+	
 	public double getLatitude() {
 		return latitude;
 	}

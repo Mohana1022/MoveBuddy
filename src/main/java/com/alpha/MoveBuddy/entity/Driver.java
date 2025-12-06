@@ -1,5 +1,7 @@
 package com.alpha.MoveBuddy.entity;
 
+import java.util.List;
+
 import org.hibernate.annotations.Cascade;
 
 
@@ -11,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -32,6 +35,9 @@ public class Driver {
 	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonIgnore
 	private Vehicle vehicle;
+	
+	@OneToMany
+	private List<Booking> bookinglist;
 
 	public long getLicenseNo() {
 		return licenseNo;
@@ -73,11 +79,11 @@ public class Driver {
 		this.age = age;
 	}
 
-	public Long getMobileno() {
+	public long getMobileno() {
 		return mobileno;
 	}
 
-	public void setMobileno(Long mobileno) {
+	public void setMobileno(long mobileno) {
 		this.mobileno = mobileno;
 	}
 
@@ -105,8 +111,16 @@ public class Driver {
 		this.vehicle = vehicle;
 	}
 
-	public Driver(long licenseNo, String upiid, String name, String status, int age, Long mobileno, String gender,
-			String mailid, Vehicle vehicle) {
+	public List<Booking> getBookinglist() {
+		return bookinglist;
+	}
+
+	public void setBookinglist(List<Booking> bookinglist) {
+		this.bookinglist = bookinglist;
+	}
+
+	public Driver(long licenseNo, String upiid, String name, String status, int age, long mobileno, String gender,
+			String mailid, Vehicle vehicle, List<Booking> bookinglist) {
 		super();
 		this.licenseNo = licenseNo;
 		this.upiid = upiid;
@@ -117,6 +131,7 @@ public class Driver {
 		this.gender = gender;
 		this.mailid = mailid;
 		this.vehicle = vehicle;
+		this.bookinglist = bookinglist;
 	}
 
 	public Driver() {
@@ -126,11 +141,9 @@ public class Driver {
 	@Override
 	public String toString() {
 		return "Driver [id=" + id + ", licenseNo=" + licenseNo + ", upiid=" + upiid + ", name=" + name + ", status="
-				+ status + ", age=" + age + ", mobileNo=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
-				+ ", vehicle=" + vehicle + "]";
+				+ status + ", age=" + age + ", mobileno=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
+				+ ", vehicle=" + vehicle + ", bookinglist=" + bookinglist + "]";
 	}
 
-	
-	
 	
 }
