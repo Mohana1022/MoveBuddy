@@ -19,5 +19,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer>{
     void deleteByMobileNo(long mobileNo);
 
     Optional<Customer> findByMobileNo(long mobileNo);
+
 	
 }

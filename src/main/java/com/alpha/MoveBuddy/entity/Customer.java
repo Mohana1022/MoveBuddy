@@ -3,6 +3,8 @@ package com.alpha.MoveBuddy.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class Customer {
 	private String currentLoc;
 	
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+	@JsonIgnore
 	private List<Booking> bookinglist = new ArrayList<>();
 	
 	public String getName() {

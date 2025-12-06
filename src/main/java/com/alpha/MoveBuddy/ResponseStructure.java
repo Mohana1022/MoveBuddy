@@ -1,5 +1,9 @@
 package com.alpha.MoveBuddy;
 
+import java.util.Optional;
+
+import com.alpha.MoveBuddy.entity.Customer;
+
 public class ResponseStructure <T> {
 	
 		private int statuscode;
@@ -19,11 +23,13 @@ public class ResponseStructure <T> {
 			this.message = message;
 		}
 		public T getData() {
-			return data;
+		    return data;
 		}
-		public void setData(String string) {
-			this.data = (T) string;
+
+		public void setData(T data) {
+		    this.data = data;
 		}
+
 		public ResponseStructure(int statuscode, String message, T data) {
 			super();
 			this.statuscode = statuscode;
@@ -32,6 +38,10 @@ public class ResponseStructure <T> {
 		}
 		public ResponseStructure() {
 			super();
+		}
+		public void setData(Optional<Customer> customer) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 		

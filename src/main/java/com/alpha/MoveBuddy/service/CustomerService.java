@@ -14,8 +14,10 @@ import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.DTO.RegisterCustomerDTO;
 import com.alpha.MoveBuddy.Repository.BookingRepository;
 import com.alpha.MoveBuddy.Repository.CustomerRepository;
+import com.alpha.MoveBuddy.Repository.VehicleRepository;
 import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Customer;
+import com.alpha.MoveBuddy.entity.Vehicle;
 import com.alpha.MoveBuddy.exception.CustomerNotFoundException;
 
 import jakarta.transaction.Transactional;
@@ -31,6 +33,9 @@ public class CustomerService {
 	
 	@Autowired
 	private BookingRepository br;
+	
+	@Autowired
+	private VehicleRepository vr;
 
 	@Value("${locationiq.api.key}")
 	private String apiKey;
@@ -96,5 +101,54 @@ public class CustomerService {
 	         rs.setData("Deleted Sucessfully");
 	         return rs;
 	     }
+	
+	public ResponseStructure<Customer> findCustomer(long mobileNo) {
+
+	    Customer customer = cr.findByMobileNo(mobileNo)
+	                          .orElseThrow(() -> new CustomerNotFoundException());
+
+	    ResponseStructure<Customer> structure = new ResponseStructure<>();
+	    structure.setStatuscode(HttpStatus.OK.value());
+	    structure.setMessage("Customer found successfully!");
+	    structure.setData(customer);
+
+	    return structure;
+	}
+	
+	public ResponseStructure<List<Vehicle>> getAvailableVehicles(long mobileNo) {
+        ResponseStructure<List<Vehicle>> response = new ResponseStructure<>();
+
+        // Find customer by mobile
+        Customer customer = cr.findByMobileNo(mobileNo)
+            .orElse(null);
+
+        if (customer == null) {
+            response.setStatuscode(404);
+            response.setMessage("Customer not found with mobile: " + mobileNo);
+            response.setData((List<Vehicle>) null);
+            return response;
+        }
+
+        String currentCity = customer.getCurrentLoc();
+
+        // Fetch vehicles in the same city with status "Available"
+        List<Vehicle> vehicles = vr.findByCurrentCityAndAvailableStatus(currentCity, "Available");
+
+        if (vehicles.isEmpty()) {
+            response.setStatuscode(200);
+            response.setMessage("No available vehicles in your city");
+            response.setData(vehicles);
+        } else {
+            response.setStatuscode(200);
+            response.setMessage("Available vehicles fetched successfully");
+            response.setData(vehicles);
+        }
+
+        return response;
+    }
+
+
+	
+	
 	 }
 
