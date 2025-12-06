@@ -2,6 +2,7 @@ package com.alpha.MoveBuddy.entity;
 
 import org.hibernate.annotations.Cascade;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;

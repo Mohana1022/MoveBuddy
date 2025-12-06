@@ -37,5 +37,14 @@ public class DriverController {
         return ds.deleteDriver(mobileNo);
     }
 	
+<<<<<<< HEAD
 
+=======
+	@PutMapping("/updatedrivervehicleloc")
+	public ResponseEntity<String> updateLocation(@RequestParam long mobileNo,@RequestParam String latitude,@RequestParam String longitude) {
+
+	    String result = ds.updateDriverLocation(mobileNo, latitude, longitude);
+	    return ResponseEntity.ok(result);
+	}
+>>>>>>> e57855cd62532d5664d8ae325fd013aec1de8f90
 }

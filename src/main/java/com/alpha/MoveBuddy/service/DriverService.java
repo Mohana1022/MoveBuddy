@@ -1,6 +1,7 @@
 package com.alpha.MoveBuddy.service;
 
 import java.util.Map;
+
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,4 +98,31 @@ public class DriverService {
     }
 
 
+<<<<<<< HEAD
+=======
+	public String updateDriverLocation(long mobileNo, String latitude, String longitude) {
+		
+		
+        Driver driver = dr.findByMobileno(mobileNo)
+                .orElseThrow(() -> new DriverNotFoundException(
+                        "Driver not found with mobile: " + mobileNo));
+
+       
+        String city = getCityName(latitude, longitude);
+
+       
+        if (driver.getVehicle() != null) {
+            Vehicle v = driver.getVehicle();
+            v.setCurrentCity(city);
+
+           
+            vr.save(v);
+        }
+
+        return "Driver location updated to city: " + city;
+
+	}
+
+    
+>>>>>>> e57855cd62532d5664d8ae325fd013aec1de8f90
 }
