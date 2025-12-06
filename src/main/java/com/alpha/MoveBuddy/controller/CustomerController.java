@@ -45,10 +45,8 @@ public class CustomerController {
 	
 	 @GetMapping("/seeAvailableVehicles")
 	    public ResponseEntity<ResponseStructure<List<Vehicle>>> seeAvailableVehicles(@RequestParam long mobileNo) {
-	        ResponseStructure<List<Vehicle>> response = cs.getAvailableVehicles(mobileNo);
-	        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatuscode()));
+	        ResponseStructure<List<Vehicle>> rs = cs.getAvailableVehicles(mobileNo);
+	        return new ResponseEntity<>(rs, HttpStatus.valueOf(rs.getStatuscode()));
 	    }
 
-
-	
 }
