@@ -1,6 +1,7 @@
 package com.alpha.MoveBuddy.entity;
 
 import jakarta.persistence.Entity;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,7 +23,7 @@ public class Vehicle {
 	private String currentCity;
 	private String availableStatus="Available";
 	private int pricePerKM;
-	
+	private int avgSpeed=0;
 	
 	@OneToOne
 	@MapsId
@@ -33,76 +34,144 @@ public class Vehicle {
 		return name;
 	}
 
+
+
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
+
+
 
 	public String getVehicleNo() {
 		return vehicleNo;
 	}
 
+
+
+
 	public void setVehicleNo(String vehicleNo) {
 		this.vehicleNo = vehicleNo;
 	}
+
+
+
 
 	public String getType() {
 		return type;
 	}
 
+
+
+
 	public void setType(String type) {
 		this.type = type;
 	}
+
+
+
 
 	public String getModel() {
 		return model;
 	}
 
+
+
+
 	public void setModel(String model) {
 		this.model = model;
 	}
+
+
+
 
 	public int getCapacity() {
 		return capacity;
 	}
 
+
+
+
 	public void setCapacity(int capacity) {
 		this.capacity = capacity;
 	}
+
+
+
 
 	public String getCurrentCity() {
 		return currentCity;
 	}
 
+
+
+
 	public void setCurrentCity(String currentCity) {
 		this.currentCity = currentCity;
 	}
+
+
+
 
 	public String getAvailableStatus() {
 		return availableStatus;
 	}
 
+
+
+
 	public void setAvailableStatus(String availableStatus) {
 		this.availableStatus = availableStatus;
 	}
+
+
+
 
 	public int getPricePerKM() {
 		return pricePerKM;
 	}
 
+
+
+
 	public void setPricePerKM(int pricePerKM) {
 		this.pricePerKM = pricePerKM;
 	}
+
+
+
+
+	public int getAvgSpeed() {
+		return avgSpeed;
+	}
+
+
+
+
+	public void setAvgSpeed(int avgSpeed) {
+		this.avgSpeed = avgSpeed;
+	}
+
+
+
 
 	public Driver getDriver() {
 		return driver;
 	}
 
+
+
+
 	public void setDriver(Driver driver) {
 		this.driver = driver;
 	}
 
+
+
+
 	public Vehicle(String name, String vehicleNo, String type, String model, int capacity, String currentCity,
-			String availableStatus, int pricePerKM, Driver driver) {
+			String availableStatus, int pricePerKM, int avgSpeed, Driver driver) {
 		super();
 		this.name = name;
 		this.vehicleNo = vehicleNo;
@@ -112,18 +181,26 @@ public class Vehicle {
 		this.currentCity = currentCity;
 		this.availableStatus = availableStatus;
 		this.pricePerKM = pricePerKM;
+		this.avgSpeed = avgSpeed;
 		this.driver = driver;
 	}
+
+
+
 
 	public Vehicle() {
 		super();
 	}
-	
+
+
+
+
 	@Override
 	public String toString() {
 		return "Vehicle [id=" + id + ", name=" + name + ", vehicleNo=" + vehicleNo + ", type=" + type + ", model="
 				+ model + ", capacity=" + capacity + ", currentCity=" + currentCity + ", availableStatus="
-				+ availableStatus + ", pricePerKM=" + pricePerKM + ", driver=" + driver + "]";
+				+ availableStatus + ", pricePerKM=" + pricePerKM + ", avgSpeed=" + avgSpeed + ", driver=" + driver
+				+ "]";
 	}
 	
 	
