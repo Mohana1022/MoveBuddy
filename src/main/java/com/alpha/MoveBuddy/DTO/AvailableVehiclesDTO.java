@@ -10,7 +10,7 @@ public class AvailableVehiclesDTO {
 	@Autowired
 	private Customer c;
 	
-	private int distance;
+	private double distance;
 	private String sourceLocation;
 	private String destination;
 	
@@ -24,12 +24,12 @@ public class AvailableVehiclesDTO {
 		this.c = c;
 	}
 
-	public int getDistance() {
+	public double getDistance() {
 		return distance;
 	}
 
-	public void setDistance(int distance) {
-		this.distance = distance;
+	public void setDistance(double d) {
+		this.distance = d;
 	}
 
 	public String getSourceLocation() {

@@ -23,7 +23,7 @@ public class Vehicle {
 	private String currentCity;
 	private String availableStatus="Available";
 	private int pricePerKM;
-	private int avgSpeed=0;
+	private double avgSpeed=0;
 	
 	@OneToOne
 	@MapsId
@@ -142,15 +142,15 @@ public class Vehicle {
 
 
 
-	public int getAvgSpeed() {
+	public double getAvgSpeed() {
 		return avgSpeed;
 	}
 
 
 
 
-	public void setAvgSpeed(int avgSpeed) {
-		this.avgSpeed = avgSpeed;
+	public void setAvgSpeed(double avgSpeed2) {
+		this.avgSpeed = avgSpeed2;
 	}
 
 

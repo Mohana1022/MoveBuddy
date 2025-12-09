@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +25,7 @@ public class Customer {
 	private String emailId;
 	private String currentLoc;
 	
-	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "customer")
 	@JsonIgnore
 	private List<Booking> bookinglist = new ArrayList<>();
 	
@@ -72,8 +71,8 @@ public class Customer {
 	public void setBookinglist(List<Booking> bookinglist) {
 		this.bookinglist = bookinglist;
 	}
-	public Customer(String name, int age, String gender, long mobileNo, String emailId, String currentLoc,
-			List<Booking> bookinglist) {
+	public Customer(String name, int age, String gender, long mobileNo, String emailId, String currentLoc) 
+	{
 		super();
 		this.name = name;
 		this.age = age;
@@ -81,7 +80,7 @@ public class Customer {
 		this.mobileNo = mobileNo;
 		this.emailId = emailId;
 		this.currentLoc = currentLoc;
-		this.bookinglist = bookinglist;
+//		this.bookinglist = bookinglist;
 	}
 	public Customer() {
 		super();
@@ -89,8 +88,9 @@ public class Customer {
 	@Override
 	public String toString() {
 		return "Customer [id=" + id + ", name=" + name + ", age=" + age + ", gender=" + gender + ", mobileNo="
-				+ mobileNo + ", emailId=" + emailId + ", currentLoc=" + currentLoc + ", bookinglist=" + bookinglist
-				+ "]";
+				+ mobileNo + ", emailId=" + emailId + ", currentLoc=" + currentLoc + 
+//				", bookinglist=" + bookinglist+ 
+				"]";
 	}
 	
 

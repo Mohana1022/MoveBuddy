@@ -9,6 +9,7 @@ public class VehicleDetailsDTO {
 	private Vehicle v;
 	private int fare;
 	private int estimatedTime;
+	
 	public Vehicle getV() {
 		return v;
 	}
