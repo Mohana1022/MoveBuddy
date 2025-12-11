@@ -12,4 +12,7 @@ import com.alpha.MoveBuddy.entity.Booking;
 public interface BookingRepository extends JpaRepository<Booking, Integer>{
 
 	List<Booking> findByCustomerMobileNo(Long mobileNo);
+
+	Booking findActiveBookingByCustomerId(long mobileNo);
+	
 }

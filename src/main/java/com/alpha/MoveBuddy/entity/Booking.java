@@ -2,8 +2,9 @@ package com.alpha.MoveBuddy.entity;
 
 import java.sql.Date;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,27 +15,44 @@ import jakarta.persistence.PrePersist;
 
 @Entity
 public class Booking {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
 
-	@ManyToOne
-	@JoinColumn(name = "customer_id")
-	private Customer customer;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int id;
 
-	@ManyToOne
-	private Driver driver;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
-	private String sourceLoc;
-	private String destinationLoc;
-	private int distanceTravelled;
-	private int fare;
-	private int estimatedTime;
-	private Date bookingDate;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
+   
 
-	@PrePersist
-	protected void onCreate() {
-		this.bookingDate = new Date(distanceTravelled); // Automatically sets current date
+    private String sourceLoc;
+    private String destinationLoc;
+    private int distanceTravelled;
+    private int fare;
+    private int estimatedTime;
+
+    @Column(updatable = false)
+    private Date bookingDate;
+
+    private String bookingStatus = "NOT PAID";
+    private String paymentStatus = "PENDING";
+
+    @PrePersist
+    protected void onCreate() {
+        this.bookingDate = new Date(System.currentTimeMillis());
+    }
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public Customer getCustomer() {
@@ -45,14 +63,15 @@ public class Booking {
 		this.customer = customer;
 	}
 
-	public Driver getDriver() {
-		return driver;
+	public Vehicle getVehicle() {
+		return vehicle;
 	}
 
-	public void setDriver(Driver driver) {
-		this.driver = driver;
+	public void setVehicle(Vehicle vehicle) {
+		this.vehicle = vehicle;
 	}
 
+	
 	public String getSourceLoc() {
 		return sourceLoc;
 	}
@@ -101,18 +120,36 @@ public class Booking {
 		this.bookingDate = bookingDate;
 	}
 
-	public Booking(Customer customer, Driver driver, String sourceLoc, String destinationLoc, int distanceTravelled,
-			int fare, int estimatedTime, Date bookingDate) {
+	public String getBookingStatus() {
+		return bookingStatus;
+	}
+
+	public void setBookingStatus(String bookingStatus) {
+		this.bookingStatus = bookingStatus;
+	}
+
+	public String getPaymentStatus() {
+		return paymentStatus;
+	}
+
+	public void setPaymentStatus(String paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+
+	public Booking(Customer customer, Vehicle vehicle, Driver driver, String sourceLoc, String destinationLoc,
+			int distanceTravelled, int fare, int estimatedTime, Date bookingDate, String bookingStatus,
+			String paymentStatus) {
 		super();
 		this.customer = customer;
-		this.driver = driver;
+		this.vehicle = vehicle;
 		this.sourceLoc = sourceLoc;
 		this.destinationLoc = destinationLoc;
 		this.distanceTravelled = distanceTravelled;
 		this.fare = fare;
 		this.estimatedTime = estimatedTime;
 		this.bookingDate = bookingDate;
-
+		this.bookingStatus = bookingStatus;
+		this.paymentStatus = paymentStatus;
 	}
 
 	public Booking() {
@@ -121,9 +158,10 @@ public class Booking {
 
 	@Override
 	public String toString() {
-		return "Booking [id=" + id + ", customer=" + customer + ", driver=" + driver + ", sourceLoc=" + sourceLoc
-				+ ", destinationLoc=" + destinationLoc + ", distanceTravelled=" + distanceTravelled + ", fare=" + fare
-				+ ", estimatedTime=" + estimatedTime + ", bookingDate=" + bookingDate + "]";
+		return "Booking [id=" + id + ", customer=" + customer + ", vehicle=" + vehicle + ", sourceLoc=" + sourceLoc + ", destinationLoc=" + destinationLoc + ", distanceTravelled="
+				+ distanceTravelled + ", fare=" + fare + ", estimatedTime=" + estimatedTime + ", bookingDate="
+				+ bookingDate + ", bookingStatus=" + bookingStatus + ", paymentStatus=" + paymentStatus + "]";
 	}
 
+    
 }

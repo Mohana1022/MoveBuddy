@@ -1,5 +1,6 @@
 package com.alpha.MoveBuddy.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.Cascade;
@@ -36,8 +37,8 @@ public class Driver {
 	@JsonIgnore
 	private Vehicle vehicle;
 	
-	@OneToMany
-	private List<Booking> bookinglist;
+	 @OneToMany(cascade = CascadeType.ALL)
+	 private List<Booking> bookings = new ArrayList<>();
 
 	public long getLicenseNo() {
 		return licenseNo;
@@ -111,12 +112,12 @@ public class Driver {
 		this.vehicle = vehicle;
 	}
 
-	public List<Booking> getBookinglist() {
-		return bookinglist;
+	public List<Booking> getBookings() {
+		return bookings;
 	}
 
-	public void setBookinglist(List<Booking> bookinglist) {
-		this.bookinglist = bookinglist;
+	public void setBookings(List<Booking> bookings) {
+		this.bookings = bookings;
 	}
 
 	public Driver(long licenseNo, String upiid, String name, String status, int age, long mobileno, String gender,
@@ -131,7 +132,7 @@ public class Driver {
 		this.gender = gender;
 		this.mailid = mailid;
 		this.vehicle = vehicle;
-		this.bookinglist = bookinglist;
+		this.bookings = bookinglist;
 	}
 
 	public Driver() {
@@ -142,7 +143,7 @@ public class Driver {
 	public String toString() {
 		return "Driver [id=" + id + ", licenseNo=" + licenseNo + ", upiid=" + upiid + ", name=" + name + ", status="
 				+ status + ", age=" + age + ", mobileno=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
-				+ ", vehicle=" + vehicle + ", bookinglist=" + bookinglist + "]";
+				+ ", vehicle=" + vehicle + ", bookinglist=" + bookings + "]";
 	}
 
 	

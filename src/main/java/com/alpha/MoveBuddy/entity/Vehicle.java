@@ -30,62 +30,52 @@ public class Vehicle {
 	@JoinColumn(name = "id") 
 	private Driver driver;
 
+	
+	public int getId() {
+		return id;
+	}
+
+
+
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+
+
+
 	public String getName() {
 		return name;
 	}
-
-
-
-
+	
 	public void setName(String name) {
 		this.name = name;
 	}
-
-
-
 
 	public String getVehicleNo() {
 		return vehicleNo;
 	}
 
-
-
-
 	public void setVehicleNo(String vehicleNo) {
 		this.vehicleNo = vehicleNo;
 	}
 
-
-
-
 	public String getType() {
 		return type;
 	}
-
-
-
-
 	public void setType(String type) {
 		this.type = type;
 	}
 
-
-
-
 	public String getModel() {
 		return model;
 	}
-
-
-
-
+	
 	public void setModel(String model) {
 		this.model = model;
 	}
-
-
-
-
+	
 	public int getCapacity() {
 		return capacity;
 	}

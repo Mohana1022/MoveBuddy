@@ -14,21 +14,21 @@ import com.alpha.MoveBuddy.service.CustomerService;
 public class CustomerController {
 
     @Autowired
-    private CustomerService service;
+    private CustomerService customerservice;
 
     @PostMapping("/registercustomer")
     public ResponseStructure<String> register(@RequestBody RegisterCustomerDTO dto) {
-        return service.saveCustomer(dto);
+        return customerservice.saveCustomer(dto);
     }
 
     @DeleteMapping("/deletecustomer")
     public ResponseEntity<ResponseStructure<String>> delete(@RequestParam long mobileNo) {
-        return ResponseEntity.ok(service.deletecustomer(mobileNo));
+        return ResponseEntity.ok(customerservice.deletecustomer(mobileNo));
     }
 
     @GetMapping("/findcustomer")
     public ResponseEntity<ResponseStructure<Customer>> find(@RequestParam long mobileNo) {
-        return ResponseEntity.ok(service.findCustomer(mobileNo));
+        return ResponseEntity.ok(customerservice.findCustomer(mobileNo));
     }
 
     @GetMapping("/seeavailableVehicles")
@@ -36,7 +36,13 @@ public class CustomerController {
             @RequestParam long mobileNo,
             @RequestParam String destination) {
 
-        return service.getAvailableVehicles(mobileNo, destination);
+        return customerservice.getAvailableVehicles(mobileNo, destination);
+    }
+    
+    @GetMapping("/seeactivebookings")
+    public ResponseStructure<Customer> CustomerSeeActiveBooking(@RequestParam long mobileno)
+    {
+    	return customerservice.findCustomer(mobileno);
     }
 }
 

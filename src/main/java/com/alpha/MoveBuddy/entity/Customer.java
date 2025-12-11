@@ -25,7 +25,7 @@ public class Customer {
 	private String emailId;
 	private String currentLoc;
 	
-	@OneToMany(mappedBy = "customer")
+	@OneToMany
 	@JsonIgnore
 	private List<Booking> bookinglist = new ArrayList<>();
 	

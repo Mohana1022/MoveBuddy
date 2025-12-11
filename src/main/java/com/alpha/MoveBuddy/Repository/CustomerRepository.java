@@ -20,5 +20,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer>{
 
     Optional<Customer> findByMobileNo(long mobileNo);
 
-	
+   
+     Customer findByMobileNo(String mobileNo);
+   
+
 }
