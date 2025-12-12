@@ -32,9 +32,7 @@ public class CustomerController {
     }
 
     @GetMapping("/seeavailableVehicles")
-    public ResponseStructure<AvailableVehiclesDTO> availableVehicles(
-            @RequestParam long mobileNo,
-            @RequestParam String destination) {
+    public ResponseStructure<AvailableVehiclesDTO> availableVehicles(@RequestParam long mobileNo,@RequestParam String destination) {
 
         return customerservice.getAvailableVehicles(mobileNo, destination);
     }
@@ -43,6 +41,11 @@ public class CustomerController {
     public ResponseStructure<Customer> CustomerSeeActiveBooking(@RequestParam long mobileno)
     {
     	return customerservice.findCustomer(mobileno);
+    }
+    
+    @GetMapping("/servicemethod")
+    public void servicemethod(@RequestParam long mobileNo) {
+    	customerservice.findCustomer(mobileNo);
     }
 }
 

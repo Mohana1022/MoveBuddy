@@ -28,7 +28,7 @@ public class Driver {
 	private String name;
 	private String status="Available";
 	private int age;
-	private long mobileno;
+	private Long mobileno;
 	private String gender;
 	private String mailid;
 	
@@ -80,11 +80,11 @@ public class Driver {
 		this.age = age;
 	}
 
-	public long getMobileno() {
+	public Long getMobileno() {
 		return mobileno;
 	}
 
-	public void setMobileno(long mobileno) {
+	public void setMobileno(Long mobileno) {
 		this.mobileno = mobileno;
 	}
 

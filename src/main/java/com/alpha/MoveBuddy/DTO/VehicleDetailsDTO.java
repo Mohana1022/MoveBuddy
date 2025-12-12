@@ -9,7 +9,7 @@ public class VehicleDetailsDTO {
 	private Vehicle v;
 	private int fare;
 	private int estimatedTime;
-	
+	private double averagespeed;
 	public Vehicle getV() {
 		return v;
 	}
@@ -28,18 +28,21 @@ public class VehicleDetailsDTO {
 	public void setEstimatedTime(int estimatedTime) {
 		this.estimatedTime = estimatedTime;
 	}
-	public VehicleDetailsDTO(Vehicle v, int fare, int estimatedTime) {
+	public double getAveragespeed() {
+		return averagespeed;
+	}
+	public void setAveragespeed(double averagespeed) {
+		this.averagespeed = averagespeed;
+	}
+	public VehicleDetailsDTO(Vehicle v, int fare, int estimatedTime, double averagespeed) {
 		super();
 		this.v = v;
 		this.fare = fare;
 		this.estimatedTime = estimatedTime;
+		this.averagespeed = averagespeed;
 	}
 	public VehicleDetailsDTO() {
 		super();
-	}
-	@Override
-	public String toString() {
-		return "VehicleDetailsDTO [v=" + v + ", fare=" + fare + ", estimatedTime=" + estimatedTime + "]";
 	}
 	
 	

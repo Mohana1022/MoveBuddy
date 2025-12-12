@@ -23,7 +23,7 @@ public class Vehicle {
 	private String currentCity;
 	private String availableStatus="Available";
 	private int pricePerKM;
-	private double avgSpeed=0;
+	private double avgSpeed;
 	
 	@OneToOne
 	@MapsId
@@ -71,74 +71,36 @@ public class Vehicle {
 	public String getModel() {
 		return model;
 	}
-	
 	public void setModel(String model) {
 		this.model = model;
 	}
-	
 	public int getCapacity() {
 		return capacity;
 	}
-
-
-
-
 	public void setCapacity(int capacity) {
 		this.capacity = capacity;
 	}
-
-
-
-
 	public String getCurrentCity() {
 		return currentCity;
 	}
-
-
-
-
 	public void setCurrentCity(String currentCity) {
 		this.currentCity = currentCity;
 	}
-
-
-
-
 	public String getAvailableStatus() {
 		return availableStatus;
 	}
-
-
-
-
 	public void setAvailableStatus(String availableStatus) {
 		this.availableStatus = availableStatus;
 	}
-
-
-
-
 	public int getPricePerKM() {
 		return pricePerKM;
 	}
-
-
-
-
 	public void setPricePerKM(int pricePerKM) {
 		this.pricePerKM = pricePerKM;
 	}
-
-
-
-
 	public double getAvgSpeed() {
 		return avgSpeed;
 	}
-
-
-
-
 	public void setAvgSpeed(double avgSpeed2) {
 		this.avgSpeed = avgSpeed2;
 	}
@@ -156,9 +118,6 @@ public class Vehicle {
 	public void setDriver(Driver driver) {
 		this.driver = driver;
 	}
-
-
-
 
 	public Vehicle(String name, String vehicleNo, String type, String model, int capacity, String currentCity,
 			String availableStatus, int pricePerKM, int avgSpeed, Driver driver) {

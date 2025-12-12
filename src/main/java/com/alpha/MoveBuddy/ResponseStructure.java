@@ -2,6 +2,8 @@ package com.alpha.MoveBuddy;
 
 import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
+
 import com.alpha.MoveBuddy.entity.Customer;
 
 public class ResponseStructure <T> {
@@ -39,10 +41,7 @@ public class ResponseStructure <T> {
 		public ResponseStructure() {
 			super();
 		}
-		public void setData(Optional<Customer> customer) {
-			// TODO Auto-generated method stub
-			
-		}
+		
 		
 		
 }

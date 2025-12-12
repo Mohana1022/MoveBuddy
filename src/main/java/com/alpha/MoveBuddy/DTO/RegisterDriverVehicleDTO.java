@@ -1,14 +1,12 @@
 package com.alpha.MoveBuddy.DTO;
 
-
-
 public class RegisterDriverVehicleDTO {
 
     private Long licenseNo;
     private String upiID;
     private String driverName;
     private Integer age;
-    private Long mobileNo;
+    private long mobileNo;
     private String gender;
     private String mailId;
     
@@ -20,37 +18,19 @@ public class RegisterDriverVehicleDTO {
     private String latitude;
     private String longitude;
     private Integer pricePerKM;
+    private int averageSpeed;
+
 
     public RegisterDriverVehicleDTO() {
         super();
     }
 
-    public RegisterDriverVehicleDTO(Long licenseNo, String upiID, String driverName, Integer age, Long mobileNo,
-                                    String gender, String mailId, String vehicleName, String vehicleNo, String vehicleType,
-                                    String model, Integer vehicleCapacity, String latitude, String longitude,
-                                    Integer pricePerKM) {
-        this.licenseNo = licenseNo;
-        this.upiID = upiID;
-        this.driverName = driverName;
-        this.age = age;
-        this.mobileNo = mobileNo;
-        this.gender = gender;
-        this.mailId = mailId;
-        this.vehicleName = vehicleName;
-        this.vehicleNo = vehicleNo;
-        this.vehicleType = vehicleType;
-        this.model = model;
-        this.vehicleCapacity = vehicleCapacity;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.pricePerKM = pricePerKM;
-    }
-
-    public Long getLicenseNo() {
+  
+    public long getLicenseNo() {
         return licenseNo;
     }
 
-    public void setLicenseNo(Long licenseNo) {
+    public void setLicenseNo(long licenseNo) {
         this.licenseNo = licenseNo;
     }
 
@@ -78,11 +58,11 @@ public class RegisterDriverVehicleDTO {
         this.age = age;
     }
 
-    public Long getMobileNo() {
+    public long getMobileNo() {
         return mobileNo;
     }
 
-    public void setMobileNo(Long mobileNo) {
+    public void setMobileNo(long mobileNo) {
         this.mobileNo = mobileNo;
     }
 
@@ -174,4 +154,39 @@ public class RegisterDriverVehicleDTO {
                 + ", model=" + model + ", vehicleCapacity=" + vehicleCapacity + ", latitude=" + latitude
                 + ", longitude=" + longitude + ", pricePerKM=" + pricePerKM + "]";
     }
+
+	public int getAverageSpeed() {
+		return averageSpeed;
+	}
+
+	public void setAverageSpeed(int averageSpeed) {
+		this.averageSpeed = averageSpeed;
+	}
+
+	public void setLicenseNo(Long licenseNo) {
+		this.licenseNo = licenseNo;
+	}
+
+	public RegisterDriverVehicleDTO(Long licenseNo, String upiID, String driverName, Integer age, long mobileNo,
+			String gender, String mailId, String vehicleName, String vehicleNo, String vehicleType, String model,
+			Integer vehicleCapacity, String latitude, String longitude, Integer pricePerKM, int averageSpeed) {
+		super();
+		this.licenseNo = licenseNo;
+		this.upiID = upiID;
+		this.driverName = driverName;
+		this.age = age;
+		this.mobileNo = mobileNo;
+		this.gender = gender;
+		this.mailId = mailId;
+		this.vehicleName = vehicleName;
+		this.vehicleNo = vehicleNo;
+		this.vehicleType = vehicleType;
+		this.model = model;
+		this.vehicleCapacity = vehicleCapacity;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.pricePerKM = pricePerKM;
+		this.averageSpeed = averageSpeed;
+	}
+    
 }

@@ -17,81 +17,69 @@ import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.entity.Vehicle;
 
-	@Service
-	public class BookingService {
+import jakarta.transaction.Transactional;
 
-		@Autowired
-		private CustomerRepository customerRepository;
+@Service
+public class BookingService {
 
-		@Autowired
-		private DriverRepository driverrepository;
-		
-	    @Autowired
-	    private VehicleRepository vehicleRepository;
-		
-		@Autowired
-		private BookingRepository bookingRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
+    @Autowired
+    private DriverRepository driverRepository;
 
-		public ResponseStructure<Booking> bookVehicle(Long customerMobile, BookingDTO dto) {
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
-	        // 1. Find customer by mobile
-	        Customer customer = customerRepository.findByMobileNo(customerMobile)
-	                .orElseThrow(() -> new RuntimeException("Customer not found"));
+    @Autowired
+    private BookingRepository bookingRepository;
 
-	        // 2. Find vehicle by id
-	        Vehicle vehicle = vehicleRepository.findById(dto.getVehicleid())
-	                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+    // 1️⃣ Book a vehicle
+    @Transactional
+    public ResponseStructure<Booking> bookVehicle(Long customerMobile, BookingDTO dto) {
 
-	        // 3. Create booking
-	        Booking booking = new Booking();
-	        booking.setCustomer(customer);
-	        booking.setVehicle(vehicle);
-	        booking.setSourceLoc(dto.getSourceLoc());
-	        booking.setDestinationLoc(dto.getDestinationLoc());
-	        booking.setDistanceTravelled(dto.getDistanceTravelled());
-	        booking.setFare(dto.getFare());
-	        booking.setEstimatedTime(dto.getEstimatedTime());
+        Customer customer = customerRepository.findByMobileNo(customerMobile)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-	        booking.setBookingStatus("booked");
-	        bookingRepository.save(booking);
-	       
-	        customer.getBookinglist().add(booking);
-//	        d.setbooking(booking);
-	        
-	        Driver driver = vehicle.getDriver(); // get driver from vehicle
-	        if (driver != null) {
-	            if (driver.getBookings() == null)
-	                driver.setBookings(new ArrayList<>());
+        Vehicle vehicle = vehicleRepository.findById(dto.getVehicleid())
+                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
 
-	            driver.getBookings().add(booking);
-	        }
-	      
-	        vehicle.setAvailableStatus("booked");
-	        
-	        customerRepository.save(customer);
-	        vehicleRepository.save(vehicle);
-	    
-	       
-//	        Payment payment = new Payment();
-//	        payment.setCustomer(customer);
-//	        payment.setVehicle(vehicle);
-//	        payment.setBooking(booking);
-//	        payment.setAmount(dto.getFare());
-	//
-//	        // PAYMENT TYPE SHOULD BE e.g., "UPI", "CASH", "CARD"
-//	        payment.setPaymenttype("not paid"); // since no payment made yet
-	//
-//	        booking.setPayement(payment); // correct setter name
+        // Create booking
+        Booking booking = new Booking();
+        booking.setCustomer(customer);
+        booking.setVehicle(vehicle);
+        booking.setSourceLoc(dto.getSourceLoc());
+        booking.setDestinationLoc(dto.getDestinationLoc());
+        booking.setDistanceTravelled(dto.getDistanceTravelled());
+        booking.setFare(dto.getFare());
+        booking.setEstimatedTime(dto.getEstimatedTime());
+        booking.setBookingStatus("booked"); // consistent lowercase
 
-	        // 5️⃣ UPDATE VEHICLE STATUS
-	 
-	        ResponseStructure<Booking> rs = new ResponseStructure<Booking>();
-			rs.setStatuscode(HttpStatus.OK.value());
-			rs.setMessage("successfully booked");
-			rs.setData(booking);
-			return rs;
-		}
-	}
+        bookingRepository.save(booking);
 
+        // Add booking to customer and set flag
+        customer.getBookinglist().add(booking);
+        customer.setBookingflag(true);  // flag true immediately
+        customerRepository.save(customer);
 
+        // Add booking to driver
+        Driver driver = vehicle.getDriver();
+        if (driver != null) {
+            if (driver.getBookings() == null)
+                driver.setBookings(new ArrayList<>());
+            driver.getBookings().add(booking);
+        }
+
+        // Update vehicle status
+        vehicle.setAvailableStatus("booked");
+        vehicleRepository.save(vehicle);
+
+        // Response
+        ResponseStructure<Booking> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.OK.value());
+        rs.setMessage("Vehicle successfully booked");
+        rs.setData(booking);
+
+        return rs;
+    }
+}

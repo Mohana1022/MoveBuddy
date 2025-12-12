@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.service.DriverService;
@@ -22,26 +23,29 @@ public class DriverController {
 	private DriverService ds;
 	
 	@PostMapping("/savedriver")
-	public Driver saveRegisterDriverVehicleDTO (@RequestBody RegisterDriverVehicleDTO driverDTO) {
+	public ResponseEntity<ResponseStructure<Driver>> saveRegisterDriverVehicleDTO (@RequestBody RegisterDriverVehicleDTO driverDTO) {
 	return	ds.saveDriverDTO(driverDTO);
 		
 	}
 
 	@GetMapping("/finddriver/{mobileno}")
-    public ResponseEntity<Driver> getDriverByMobile(@PathVariable long mobileno) {
-        Driver driver = ds.findDriverByMobile(mobileno);
-        return ResponseEntity.ok(driver);
-    }
+	public ResponseEntity<ResponseStructure<Driver>> getDriverByMobile(@PathVariable long mobileno) {
+	    return ds.findDriverByMobile(mobileno);
+	}
+
 	
 	@DeleteMapping("/deletedriver/{mobileNo}")
-    public String deleteDriver(@PathVariable long mobileNo) {
+    public ResponseEntity<ResponseStructure<String>> deleteDriver(@PathVariable long mobileNo) {
         return ds.deleteDriver(mobileNo);
     }
 
 	@PutMapping("/updatedrivervehicleloc")
-	public ResponseEntity<String> updateLocation(@RequestParam long mobileNo,@RequestParam String latitude,@RequestParam String longitude) {
+	public ResponseEntity<ResponseStructure<String>> updateLocation(
+	        @RequestParam long mobileNo,
+	        @RequestParam String latitude,
+	        @RequestParam String longitude) {
 
-	    String result = ds.updateDriverLocation(mobileNo, latitude, longitude);
-	    return ResponseEntity.ok(result);
+	    return ds.updateDriverLocation(mobileNo, latitude, longitude);
 	}
+
 }

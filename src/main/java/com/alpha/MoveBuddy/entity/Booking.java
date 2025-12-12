@@ -39,8 +39,8 @@ public class Booking {
     @Column(updatable = false)
     private Date bookingDate;
 
-    private String bookingStatus = "NOT PAID";
-    private String paymentStatus = "PENDING";
+    private String bookingStatus = "PENDING";
+    private String paymentStatus = "NOT PAID";
 
     @PrePersist
     protected void onCreate() {

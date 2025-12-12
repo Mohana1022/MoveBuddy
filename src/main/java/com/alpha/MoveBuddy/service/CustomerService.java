@@ -27,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Driver;
 import java.util.*;
 
 @Service
@@ -238,10 +239,9 @@ public class CustomerService {
 
         double distanceKm = distanceMeters / 1000.0;
         double durationMinutes = durationSeconds / 60.0;
-        double avgSpeed = (durationSeconds > 0)
-                ? (distanceKm / (durationMinutes / 60.0))
-                : 0.0;
-
+        double avgSpeed = 
+        		(distanceKm / (durationMinutes / 60.0));
+                
 
         // 5️⃣ Fetch available vehicles
      // 5️⃣ Fetch available vehicles
@@ -256,7 +256,7 @@ public class CustomerService {
             int estTime = (int) durationMinutes;
 
             // Calculate actual average speed (km/h)
-            double actualSpeed = (durationMinutes > 0) ? (distanceKm / (durationMinutes / 60.0)) : 0.0;
+            double actualSpeed = (distanceKm / (durationMinutes / 60.0));
             v.setAvgSpeed(actualSpeed);
 
             // Prepare DTO
@@ -264,6 +264,8 @@ public class CustomerService {
             dto.setV(v);
             dto.setFare(fare);
             dto.setEstimatedTime(estTime);
+            dto.setAveragespeed(actualSpeed);
+
 
             dtoList.add(dto);
         }
@@ -381,35 +383,44 @@ public class CustomerService {
                 "time", Double.parseDouble(dur.get("value").toString())
         );
     }
-    
+//    SEE COUSTOMER ACTIVE BOOKINGS
     public ResponseEntity<ResponseStructure<CustomerActiveBookingDTO>> CustomerSeeActiveBooking(long mobileNo) {
-    	Customer customer = customerRepo.findByMobileNo(mobileNo).orElseThrow(()->  new CustomerNotFoundException());
-    	Booking booking = bookingRepo.findActiveBookingByCustomerId(customer.getMobileNo());
-    	if(booking == null) {
-    		throw new NoCurrentBookingException();
-    	}
-    	
-    	CustomerActiveBookingDTO dto = new CustomerActiveBookingDTO();
-    	dto.setCustomername(customer.getName());
-    	dto.setCustomerMobile(customer.getMobileNo());
-    	dto.setBooking(booking);
-    	dto.setCurrentLocation(booking.getVehicle().getCurrentCity());
-    	
-    	ResponseStructure<CustomerActiveBookingDTO> rs = new ResponseStructure<>();
-    	rs.setStatuscode(HttpStatus.OK.value());
-    	rs.setMessage("Active Booking fetched successfully");
-    	rs.setData(dto);
-    	
-    	return new ResponseEntity<ResponseStructure<CustomerActiveBookingDTO>>(rs,HttpStatus.OK);
-    		
-    		
-    		
-    		
-    		
-    		
-    		
-    		
-    	
+
+    	Customer customer = customerRepo.findByMobileNo(mobileNo)
+    	        .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+		customer.setBookingflag(true);  // modify managed entity
+    	customerRepo.save(customer);    // persists the change
+
+        Booking booking = bookingRepo.findActiveBookingByCustomerId(customer.getMobileNo());
+
+        // No active booking
+        if (booking == null) {
+            customer.setBookingflag(false);
+            customerRepo.save(customer);
+            throw new RuntimeException("No current booking found");
+        }
+
+        // Prepare DTO
+        CustomerActiveBookingDTO customerActiveBookingDTO = new CustomerActiveBookingDTO();
+        customerActiveBookingDTO.setCustomername(customer.getName());
+        customerActiveBookingDTO.setCustomerMobile(customer.getMobileNo());
+        customerActiveBookingDTO.setBooking(booking);
+        customerActiveBookingDTO.setCurrentLocation(booking.getVehicle().getCurrentCity());
+
+        // Update booking flag based on booking status
+        boolean isBooked = booking.getBookingStatus() != null &&
+                           booking.getBookingStatus().trim().equalsIgnoreCase("booked");
+        customer.setBookingflag(isBooked);
+        customerRepo.save(customer);
+
+        // Response
+        ResponseStructure<CustomerActiveBookingDTO> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.OK.value());
+        rs.setMessage("Active Booking fetched successfully");
+        rs.setData(customerActiveBookingDTO);
+
+        return new ResponseEntity<>(rs, HttpStatus.OK);
     }
 
 
