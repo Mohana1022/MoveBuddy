@@ -32,7 +32,6 @@ public class DriverController {
 	public ResponseEntity<ResponseStructure<Driver>> getDriverByMobile(@PathVariable long mobileno) {
 	    return ds.findDriverByMobile(mobileno);
 	}
-
 	
 	@DeleteMapping("/deletedriver/{mobileNo}")
     public ResponseEntity<ResponseStructure<String>> deleteDriver(@PathVariable long mobileNo) {
@@ -48,4 +47,5 @@ public class DriverController {
 	    return ds.updateDriverLocation(mobileNo, latitude, longitude);
 	}
 
+	
 }

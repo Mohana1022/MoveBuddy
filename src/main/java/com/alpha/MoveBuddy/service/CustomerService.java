@@ -383,6 +383,8 @@ public class CustomerService {
                 "time", Double.parseDouble(dur.get("value").toString())
         );
     }
+    
+    
 //    SEE COUSTOMER ACTIVE BOOKINGS
     public ResponseEntity<ResponseStructure<CustomerActiveBookingDTO>> CustomerSeeActiveBooking(long mobileNo) {
 
