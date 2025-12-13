@@ -47,5 +47,11 @@ public class DriverController {
 
 	    return ds.updateDriverLocation(mobileNo, latitude, longitude);
 	}
+	
+	
+	@GetMapping("/completeride")
+	public void completeride(@RequestParam int bookingid,@RequestParam String bookingStatus) {
+		 ds.findById(bookingid,bookingStatus);
+	}
 
 }
