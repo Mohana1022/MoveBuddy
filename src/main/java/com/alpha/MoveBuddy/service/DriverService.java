@@ -12,9 +12,15 @@ import org.springframework.web.client.RestTemplate;
 
 import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
+import com.alpha.MoveBuddy.Repository.BookingRepository;
+import com.alpha.MoveBuddy.Repository.CustomerRepository;
 import com.alpha.MoveBuddy.Repository.DriverRepository;
+import com.alpha.MoveBuddy.Repository.PaymentRepository;
 import com.alpha.MoveBuddy.Repository.VehicleRepository;
+import com.alpha.MoveBuddy.entity.Booking;
+import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.entity.Driver;
+import com.alpha.MoveBuddy.entity.Payment;
 import com.alpha.MoveBuddy.entity.Vehicle;
 import com.alpha.MoveBuddy.exception.DriverNotFoundException;
 
@@ -26,6 +32,14 @@ public class DriverService {
 
     @Autowired
     private VehicleRepository vr;
+    
+    @Autowired
+    private CustomerRepository cr;
+    
+    @Autowired
+    private BookingRepository br;
+    @Autowired
+    private PaymentRepository pr;
 
     @Value("${locationiq.api.key}")
     private String apiKey;
@@ -168,6 +182,36 @@ public class DriverService {
 
         return ResponseEntity.ok(rs);
     }
+
+
+
+	public void findById(int bookingid, String paymenttype) {
+	
+		Booking booking = new Booking();
+		booking.setBookingStatus("COMPLETED");
+		booking.setPaymentStatus("PAID");
+		
+		Customer c = booking.getCustomer();
+		c.setBookingflag(false);
+		
+		Vehicle v = booking.getVehicle();
+		v.setAvailableStatus("AVAILABLE");
+		
+		Payment p = new Payment();
+		p.setVehicle(v);
+		p.setCustomer(c);
+		p.setBooking(booking);
+		p.setAmount(booking.getFare());
+		p.setPaymenttype(paymenttype);
+		
+		cr.save(c);
+		vr.save(v);
+		br.save(booking);
+		pr.save(p);
+		
+
+			
+	}
 
 
 }
