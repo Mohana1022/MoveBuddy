@@ -51,9 +51,9 @@ public class CustomerService {
     private final String distanceMatrixApiKey =
             "De9l1ffh7aQ6Fmj1stHC0PJzNexhQLZYOQNQXpHZJv5INb0ovhhhKJxUo3vRcpJD";
 
-    // =======================================================================
+    
     // SAVE CUSTOMER + GET CITY FROM COORDINATES
-    // =======================================================================
+    
 
     public ResponseStructure<String> saveCustomer(RegisterCustomerDTO dto) {
 
@@ -100,9 +100,9 @@ public class CustomerService {
         }
     }
 
-    // =======================================================================
+   
     // DELETE CUSTOMER
-    // =======================================================================
+    
 
     @Transactional
     public ResponseStructure<String> deletecustomer(long mobileNo) {
@@ -119,10 +119,8 @@ public class CustomerService {
         return rs;
     }
 
-    // =======================================================================
     // FIND CUSTOMER
-    // =======================================================================
-
+   
     public ResponseStructure<Customer> findCustomer(long mobileNo) {
 
         Customer c = customerRepo.findByMobileNo(mobileNo)
@@ -188,14 +186,9 @@ public class CustomerService {
     }
 
 
-     
-
-
-
-    // =======================================================================
     // GET AVAILABLE VEHICLES
-    // =======================================================================
 
+    
     public ResponseStructure<AvailableVehiclesDTO> getAvailableVehicles(long mobileNumber, String destinationLocation) {
 
         ResponseStructure<AvailableVehiclesDTO> structure = new ResponseStructure<>();
@@ -243,8 +236,7 @@ public class CustomerService {
         		(distanceKm / (durationMinutes / 60.0));
                 
 
-        // 5️⃣ Fetch available vehicles
-     // 5️⃣ Fetch available vehicles
+     //  Fetch available vehicles
         List<Vehicle> vehicles = vehicleRepo.findVehiclesByCity(sourceLocation, "Available");
 
         List<VehicleDetailsDTO> dtoList = new ArrayList<>();
@@ -288,9 +280,8 @@ public class CustomerService {
     }
 
 
-    // =======================
     // HELPER: Safe coordinates fetch
-    // =======================
+    
     private Map<String, Double> getCoordinatesSafe(String place) {
 
         List<Map<String, Object>> res = Optional.ofNullable(
@@ -326,9 +317,10 @@ public class CustomerService {
         return Map.of("lat", lat, "lon", lon);
     }
 
-    // =======================
+    
     // HELPER: Safe distance fetch
-    // =======================
+    
+    
     private Map<String, Object> getDistanceSafe(double slat, double slon, double dlat, double dlon) {
 
         String url = "https://api-v2.distancematrix.ai/maps/api/distancematrix/json"

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
+import com.alpha.MoveBuddy.DTO.RideCompletionDTO;
+import com.alpha.MoveBuddy.DTO.UpiDTO;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.service.DriverService;
 
@@ -48,10 +50,13 @@ public class DriverController {
 	}
 	
 	
-	@GetMapping("/completeride")
-	public void completeride(@RequestParam int bookingid,@RequestParam String bookingStatus) {
-		 ds.findById(bookingid,bookingStatus);
-	}
+	@PutMapping("/completeride")
+    public ResponseEntity<ResponseStructure<RideCompletionDTO>> completeRide(@RequestParam int bookingId , @RequestParam String paymentType) {
+
+        return ds.completeRide(bookingId, paymentType);
+    }
+	
+
 
 	
 }

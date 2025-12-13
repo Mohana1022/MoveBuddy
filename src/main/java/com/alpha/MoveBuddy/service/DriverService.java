@@ -6,12 +6,15 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
+import com.alpha.MoveBuddy.DTO.RideCompletionDTO;
+import com.alpha.MoveBuddy.DTO.UpiDTO;
 import com.alpha.MoveBuddy.Repository.BookingRepository;
 import com.alpha.MoveBuddy.Repository.CustomerRepository;
 import com.alpha.MoveBuddy.Repository.DriverRepository;
@@ -45,9 +48,8 @@ public class DriverService {
     private String apiKey;
 
 
-    // -------------------------------------
     // GET CITY NAME (same – no change)
-    // -------------------------------------
+    
     public String getCityName(String string, String string2) {
 
         String url = "https://us1.locationiq.com/v1/reverse?key=" + apiKey +
@@ -70,9 +72,8 @@ public class DriverService {
 
 
 
-    // ---------------------------------------------------------
     // SAVE DRIVER + VEHICLE  (returns ResponseStructure<Driver>)
-    // ---------------------------------------------------------
+    
     public ResponseEntity<ResponseStructure<Driver>> saveDriverDTO(RegisterDriverVehicleDTO dto) {
 
         Driver d = new Driver();
@@ -109,10 +110,8 @@ public class DriverService {
     }
 
 
-
-    // ---------------------------------------------------------
     // FIND DRIVER BY MOBILE  (returns ResponseStructure<Driver>)
-    // ---------------------------------------------------------
+    
     public ResponseEntity<ResponseStructure<Driver>> findDriverByMobile(long mobileNo) {
 
         Driver driver = dr.findByMobileno(mobileNo)
@@ -128,9 +127,8 @@ public class DriverService {
 
 
 
-    // ---------------------------------------------------------
     // DELETE DRIVER  (returns ResponseStructure<String>)
-    // ---------------------------------------------------------
+    
     public ResponseEntity<ResponseStructure<String>> deleteDriver(long mobileNo) {
 
         ResponseStructure<String> rs = new ResponseStructure<>();
@@ -156,9 +154,7 @@ public class DriverService {
 
 
 
-    // ---------------------------------------------------------
     // UPDATE DRIVER LOCATION (returns ResponseStructure<String>)
-    // ---------------------------------------------------------
     public ResponseEntity<ResponseStructure<String>> updateDriverLocation(long mobileNo,
                                                                           String latitude,
                                                                           String longitude) {
@@ -183,35 +179,95 @@ public class DriverService {
         return ResponseEntity.ok(rs);
     }
 
+//CompletionRide
+    
+    public ResponseEntity<ResponseStructure<RideCompletionDTO>>
+    completeRide(int bookingId, String paymentType) {
 
+        if (paymentType.equalsIgnoreCase("CASH")) {
+            return cashPayment(bookingId);
+        } 
+        else if (paymentType.equalsIgnoreCase("UPI")) {
+            return upiPayment(bookingId);
+        } 
+        else {
+            throw new RuntimeException("Invalid payment type");
+        }
+    }
 
-	public void findById(int bookingid, String paymenttype) {
-	
-		Booking booking = new Booking();
-		booking.setBookingStatus("COMPLETED");
-		booking.setPaymentStatus("PAID");
-		
-		Customer c = booking.getCustomer();
-		c.setBookingflag(false);
-		
-		Vehicle v = booking.getVehicle();
-		v.setAvailableStatus("AVAILABLE");
-		
-		Payment p = new Payment();
-		p.setVehicle(v);
-		p.setCustomer(c);
-		p.setBooking(booking);
-		p.setAmount(booking.getFare());
-		p.setPaymenttype(paymenttype);
-		
-		cr.save(c);
-		vr.save(v);
-		br.save(booking);
-		pr.save(p);
-		
+    
+    // CASH PAYMENT
+    
+    private ResponseEntity<ResponseStructure<RideCompletionDTO>>
+    cashPayment(int bookingId) {
 
-			
+        RideCompletionDTO dto = completeRideCommonLogic(bookingId, "CASH");
+
+        ResponseStructure<RideCompletionDTO> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("Cash payment successful");
+        rs.setData(dto);
+
+        return ResponseEntity.ok(rs);
+    }
+
+    
+    // UPI PAYMENT
+    
+    private ResponseEntity<ResponseStructure<RideCompletionDTO>>
+    upiPayment(int bookingId) {
+
+        RideCompletionDTO dto = completeRideCommonLogic(bookingId, "UPI");
+
+        ResponseStructure<RideCompletionDTO> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("UPI payment successful");
+        rs.setData(dto);
+
+        return ResponseEntity.ok(rs);
+    }
+
+    // COMMON RIDE COMPLETION LOGIC
+    
+    private RideCompletionDTO
+    completeRideCommonLogic(int bookingId, String paymentType) {
+
+        Booking booking = br.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        
+        booking.setBookingStatus("COMPLETED");
+        booking.setPaymentStatus("PAID");
+
+        Customer customer = booking.getCustomer();
+        customer.setBookingflag(false);
+
+        Vehicle vehicle = booking.getVehicle();
+        vehicle.setAvailableStatus("AVAILABLE");
+
+        Payment payment = new Payment();
+        payment.setBooking(booking);
+        payment.setCustomer(customer);
+        payment.setVehicle(vehicle);
+        payment.setAmount(booking.getFare());
+        payment.setPaymenttype(paymentType);
+
+        br.save(booking);
+        cr.save(customer);
+        vr.save(vehicle);
+        pr.save(payment);
+
+        RideCompletionDTO dto = new RideCompletionDTO();
+        dto.setBooking(booking);
+        dto.setCustomer(customer);
+        dto.setVehicle(vehicle);
+        dto.setPayment(payment);
+
+        return dto;
+    }
+
+   
+
 	}
 
-
-}
+    
