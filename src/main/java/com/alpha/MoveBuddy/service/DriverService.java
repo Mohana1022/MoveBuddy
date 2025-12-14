@@ -1,5 +1,7 @@
 package com.alpha.MoveBuddy.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import java.util.Optional;
@@ -12,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.alpha.MoveBuddy.ResponseStructure;
+import com.alpha.MoveBuddy.DTO.BookingHistoryDto;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
 import com.alpha.MoveBuddy.DTO.RideCompletionDTO;
+import com.alpha.MoveBuddy.DTO.RideDetailsDTO;
 import com.alpha.MoveBuddy.DTO.UpiDTO;
 import com.alpha.MoveBuddy.Repository.BookingRepository;
 import com.alpha.MoveBuddy.Repository.CustomerRepository;
@@ -264,6 +268,42 @@ public class DriverService {
         dto.setPayment(payment);
 
         return dto;
+    }
+
+
+
+    public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(long mobileNo) {
+
+    	Driver d = dr.findByMobileno(mobileNo)
+                .orElseThrow(() ->
+                        new DriverNotFoundException(
+                                "Driver not found with mobile: " + mobileNo));
+
+        List<Booking> blist = d.getBookings();
+        List<RideDetailsDTO> rideDetailsdto = new ArrayList<>();
+        double totalAmount = 0;
+
+        for (Booking b : blist) {
+            RideDetailsDTO rdto = new RideDetailsDTO();
+            rdto.setFromLoc(b.getSourceLoc());
+            rdto.setToLoc(b.getDestinationLoc());
+            rdto.setDistance(b.getDistanceTravelled());
+            rdto.setFare(b.getFare());
+
+            totalAmount += b.getFare();
+            rideDetailsdto.add(rdto); // ✅ important
+        }
+
+        BookingHistoryDto bookingHistorydto = new BookingHistoryDto();
+        bookingHistorydto.setHistory(rideDetailsdto);
+        bookingHistorydto.setTotalAmount(totalAmount);
+
+        ResponseStructure<BookingHistoryDto> responsestructure = new ResponseStructure<>();
+        responsestructure.setStatuscode(200);
+        responsestructure.setMessage("Booking history fetched successfully");
+        responsestructure.setData(bookingHistorydto);
+
+        return ResponseEntity.ok(responsestructure);
     }
 
    
