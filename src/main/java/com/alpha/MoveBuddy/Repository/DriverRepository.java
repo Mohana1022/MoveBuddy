@@ -13,8 +13,8 @@ import com.alpha.MoveBuddy.entity.Vehicle;
 
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Integer> {
-
 	Optional<Driver> findByMobileno(long mobileno);
+	
 
     void deleteByMobileno(long mobileno);
 
