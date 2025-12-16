@@ -305,22 +305,22 @@ public class DriverService {
         return ResponseEntity.ok(responsestructure);
     }
 
-
-    			//CANCLELATION BY DRIVER
+    //CANCLELATION BY DRIVER
+    
     public void cancelBooking(int id, int bookingId) {
     	Driver driver = dr.findById(id)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
-        // 2️⃣ Find Booking by ID
+        // Find Booking by ID
         Booking booking = br.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        // 3️⃣ Validate booking belongs to driver
+        // checking booking belongs to driver or not
         if (booking.getVehicle().getId() != id) {
             throw new RuntimeException("Booking does not belong to this driver");
         }
 
-        // 4️⃣ Count driver cancellations
+        // Count driver cancellations
         int cancellationCount = 0;
         List<Booking> driverBookings = br.findByVehicle_Driver_Id(id);
 
@@ -330,15 +330,16 @@ public class DriverService {
             }
         }
 
-        // 5️⃣ Cancel booking
+        // Cancel booking
         booking.setBookingStatus("canceled by driver");
 
-        // 6️⃣ Block driver if cancellation limit exceeded
+        // Block driver if cancellation limit exceeded
         if (cancellationCount >= 4) {
             driver.setStatus("blocked");
             dr.save(driver);
         }
         br.save(booking);
+        
 //        completeRideCommonLogic(cancellationCount, apiKey);
     }
  }

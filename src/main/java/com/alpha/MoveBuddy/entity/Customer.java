@@ -25,6 +25,7 @@ public class Customer {
 	private long mobileNo;
 	private String emailId;
 	private String currentLoc;
+	@Column(nullable = false)
 	private int penality = 0;
 	
 	@Column(name="bookingflag")
