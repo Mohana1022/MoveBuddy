@@ -291,7 +291,7 @@ public class DriverService {
             rdto.setFare(b.getFare());
 
             totalAmount += b.getFare();
-            rideDetailsdto.add(rdto); // ✅ important
+            rideDetailsdto.add(rdto); 
         }
 
         BookingHistoryDto bookingHistorydto = new BookingHistoryDto();
