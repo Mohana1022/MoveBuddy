@@ -61,6 +61,11 @@ public class DriverController {
 	public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(@RequestParam long mobileNo){
 		return ds.seeAllBookingHistory(mobileNo);
 	}
+	
+	@PutMapping("/drivercancillation")
+	public void cancelBooking(int id, int bookingId) {
+		ds.cancelBooking(id, bookingId);
+	}
 
 
 }

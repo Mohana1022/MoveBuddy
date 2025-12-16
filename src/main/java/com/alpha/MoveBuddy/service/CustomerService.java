@@ -418,6 +418,8 @@ public class CustomerService {
         return new ResponseEntity<>(rs, HttpStatus.OK);
     }
 
+//    cancillation by customer
+    
 	public ResponseStructure<Customer> customerCancellation(int bookingid, int customerid) {
 
 		Customer customer = customerRepo.findById(customerid).orElseThrow(()-> new CustomerNotFoundException());

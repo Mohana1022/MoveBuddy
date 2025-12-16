@@ -47,5 +47,10 @@ public class CustomerController {
     public void servicemethod(@RequestParam long mobileNo) {
     	customerservice.findCustomer(mobileNo);
     }
+    
+    @PutMapping("/customerCancellation")
+    public ResponseStructure<Customer> customerCancellation(int bookingid, int customerid) {
+    	return customerservice.customerCancellation(bookingid, customerid);
+    }
 }
 
