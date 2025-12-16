@@ -11,6 +11,7 @@ import com.alpha.MoveBuddy.Repository.VehicleRepository;
 import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.entity.Vehicle;
+import com.alpha.MoveBuddy.exception.BookingNotFoundException;
 import com.alpha.MoveBuddy.exception.CoordinatesNotFoundException;
 import com.alpha.MoveBuddy.exception.CustomerNotFoundException;
 import com.alpha.MoveBuddy.exception.DistanceCalculationFailedException;
@@ -417,7 +418,20 @@ public class CustomerService {
         return new ResponseEntity<>(rs, HttpStatus.OK);
     }
 
+	public ResponseStructure<Customer> customerCancellation(int bookingid, int customerid) {
 
-
-
+		Customer customer = customerRepo.findById(customerid).orElseThrow(()-> new CustomerNotFoundException());
+		customer.setPenality(customer.getPenality()+1);
+		Booking booking = bookingRepo.findById(bookingid).orElseThrow(()-> new BookingNotFoundException());
+		booking.setBookingStatus("cancelled by customer");
+		customerRepo.save(customer);
+		bookingRepo.save(booking);
+		
+		 // Response
+		ResponseStructure<Customer> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.OK.value());
+        rs.setMessage("Customer found");
+        rs.setData(customer);
+        return rs;
+    }		
 }
