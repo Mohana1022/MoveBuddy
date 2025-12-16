@@ -119,7 +119,7 @@ public class DriverService {
     public ResponseEntity<ResponseStructure<Driver>> findDriverByMobile(long mobileNo) {
 
         Driver driver = dr.findByMobileno(mobileNo)
-                .orElseThrow(() -> new DriverNotFoundException("Driver not found with mobile: " + mobileNo));
+                .orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
 
         ResponseStructure<Driver> rs = new ResponseStructure<>();
         rs.setStatuscode(200);
@@ -164,7 +164,7 @@ public class DriverService {
                                                                           String longitude) {
 
         Driver driver = dr.findByMobileno(mobileNo)
-                .orElseThrow(() -> new DriverNotFoundException("Driver not found with mobile: " + mobileNo));
+                .orElseThrow(() -> new DriverNotFoundException("Driver Not found"));
 
         String city = getCityName(latitude, longitude);
 
@@ -276,8 +276,7 @@ public class DriverService {
 
     	Driver d = dr.findByMobileno(mobileNo)
                 .orElseThrow(() ->
-                        new DriverNotFoundException(
-                                "Driver not found with mobile: " + mobileNo));
+                        new DriverNotFoundException("Driver Not Found"));
 
         List<Booking> blist = d.getBookings();
         List<RideDetailsDTO> rideDetailsdto = new ArrayList<>();
@@ -306,8 +305,43 @@ public class DriverService {
         return ResponseEntity.ok(responsestructure);
     }
 
-   
 
-	}
+    			//CANCLELATION BY DRIVER
+    public void cancelBooking(int id, int bookingId) {
+    	Driver driver = dr.findById(id)
+                .orElseThrow(() -> new RuntimeException("Driver not found"));
+
+        // 2️⃣ Find Booking by ID
+        Booking booking = br.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        // 3️⃣ Validate booking belongs to driver
+        if (booking.getVehicle().getId() != id) {
+            throw new RuntimeException("Booking does not belong to this driver");
+        }
+
+        // 4️⃣ Count driver cancellations
+        int cancellationCount = 0;
+        List<Booking> driverBookings = br.findByVehicle_Driver_Id(id);
+
+        for (Booking b : driverBookings) {
+            if ("canceled by driver".equals(b.getBookingStatus())) {
+                cancellationCount++;
+            }
+        }
+
+        // 5️⃣ Cancel booking
+        booking.setBookingStatus("canceled by driver");
+
+        // 6️⃣ Block driver if cancellation limit exceeded
+        if (cancellationCount >= 4) {
+            driver.setStatus("blocked");
+            dr.save(driver);
+        }
+        br.save(booking);
+//        completeRideCommonLogic(cancellationCount, apiKey);
+    }
+ }
+    
 
     

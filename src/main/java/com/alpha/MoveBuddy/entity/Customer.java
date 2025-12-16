@@ -25,6 +25,7 @@ public class Customer {
 	private long mobileNo;
 	private String emailId;
 	private String currentLoc;
+	private int penality = 0;
 	
 	@Column(name="bookingflag")
 	private boolean bookingflag = false;
@@ -89,6 +90,14 @@ public class Customer {
 		this.currentLoc = currentLoc;
 	}
 
+	public int getPenality() {
+		return penality;
+	}
+
+	public void setPenality(int penality) {
+		this.penality = penality;
+	}
+
 	public boolean isBookingflag() {
 		return bookingflag;
 	}
@@ -105,7 +114,7 @@ public class Customer {
 		this.bookinglist = bookinglist;
 	}
 
-	public Customer(String name, int age, String gender, long mobileNo, String emailId, String currentLoc,
+	public Customer(String name, int age, String gender, long mobileNo, String emailId, String currentLoc, int penality,
 			boolean bookingflag, List<Booking> bookinglist) {
 		super();
 		this.name = name;
@@ -114,6 +123,7 @@ public class Customer {
 		this.mobileNo = mobileNo;
 		this.emailId = emailId;
 		this.currentLoc = currentLoc;
+		this.penality = penality;
 		this.bookingflag = bookingflag;
 		this.bookinglist = bookinglist;
 	}
@@ -125,8 +135,10 @@ public class Customer {
 	@Override
 	public String toString() {
 		return "Customer [id=" + id + ", name=" + name + ", age=" + age + ", gender=" + gender + ", mobileNo="
-				+ mobileNo + ", emailId=" + emailId + ", currentLoc=" + currentLoc + ", bookingflag=" + bookingflag
-				+ ", bookinglist=" + bookinglist + "]";
+				+ mobileNo + ", emailId=" + emailId + ", currentLoc=" + currentLoc + ", penality=" + penality
+				+ ", bookingflag=" + bookingflag + ", bookinglist=" + bookinglist + "]";
 	}
+
+	
 	
 }
