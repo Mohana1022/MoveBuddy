@@ -339,7 +339,7 @@ public class DriverService {
             dr.save(driver);
         }
         br.save(booking);
-//        completeRideCommonLogic(cancellationCount, apiKey);
+     
     }
  }
     
