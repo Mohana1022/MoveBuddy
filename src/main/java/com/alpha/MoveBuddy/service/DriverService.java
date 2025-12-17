@@ -1,29 +1,26 @@
 package com.alpha.MoveBuddy.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.DTO.BookingHistoryDto;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
 import com.alpha.MoveBuddy.DTO.RideCompletionDTO;
 import com.alpha.MoveBuddy.DTO.RideDetailsDTO;
-import com.alpha.MoveBuddy.DTO.UpiDTO;
 import com.alpha.MoveBuddy.Repository.BookingRepository;
 import com.alpha.MoveBuddy.Repository.CustomerRepository;
 import com.alpha.MoveBuddy.Repository.DriverRepository;
 import com.alpha.MoveBuddy.Repository.PaymentRepository;
 import com.alpha.MoveBuddy.Repository.VehicleRepository;
+import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.entity.Driver;
@@ -39,45 +36,36 @@ public class DriverService {
 
     @Autowired
     private VehicleRepository vr;
-    
+
     @Autowired
     private CustomerRepository cr;
-    
+
     @Autowired
     private BookingRepository br;
+
     @Autowired
     private PaymentRepository pr;
 
     @Value("${locationiq.api.key}")
     private String apiKey;
 
-
-    // GET CITY NAME (same – no change)
-    
-    public String getCityName(String string, String string2) {
+    // ---------------- GET CITY NAME ----------------
+    public String getCityName(String lat, String lon) {
 
         String url = "https://us1.locationiq.com/v1/reverse?key=" + apiKey +
-                "&lat=" + string + "&lon=" + string2 + "&format=json";
+                "&lat=" + lat + "&lon=" + lon + "&format=json";
 
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-
         Map<String, Object> address = (Map<String, Object>) response.get("address");
 
-        if (address.get("city") != null)
-            return address.get("city").toString();
-        else if (address.get("town") != null)
-            return address.get("town").toString();
-        else if (address.get("village") != null)
-            return address.get("village").toString();
-        else
-            return "Unknown";
+        if (address.get("city") != null) return address.get("city").toString();
+        if (address.get("town") != null) return address.get("town").toString();
+        if (address.get("village") != null) return address.get("village").toString();
+        return "Unknown";
     }
 
-
-
-    // SAVE DRIVER + VEHICLE  (returns ResponseStructure<Driver>)
-    
+    // ---------------- SAVE DRIVER ----------------
     public ResponseEntity<ResponseStructure<Driver>> saveDriverDTO(RegisterDriverVehicleDTO dto) {
 
         Driver d = new Driver();
@@ -89,17 +77,16 @@ public class DriverService {
         d.setGender(dto.getGender());
         d.setMailid(dto.getMailId());
 
-        String city = getCityName(dto.getLatitude(), dto.getLongitude());
-
         Vehicle v = new Vehicle();
         v.setName(dto.getVehicleName());
         v.setVehicleNo(dto.getVehicleNo());
         v.setType(dto.getVehicleType());
         v.setModel(dto.getModel());
         v.setCapacity(dto.getVehicleCapacity());
-        v.setCurrentCity(city);
         v.setPricePerKM(dto.getPricePerKM());
         v.setAvgSpeed(dto.getAverageSpeed());
+        v.setCurrentCity(getCityName(dto.getLatitude(), dto.getLongitude()));
+
         v.setDriver(d);
         d.setVehicle(v);
 
@@ -113,9 +100,7 @@ public class DriverService {
         return ResponseEntity.ok(rs);
     }
 
-
-    // FIND DRIVER BY MOBILE  (returns ResponseStructure<Driver>)
-    
+    // ---------------- FIND DRIVER ----------------
     public ResponseEntity<ResponseStructure<Driver>> findDriverByMobile(long mobileNo) {
 
         Driver driver = dr.findByMobileno(mobileNo)
@@ -129,115 +114,12 @@ public class DriverService {
         return ResponseEntity.ok(rs);
     }
 
+    // ---------------- COMPLETE RIDE ----------------
+    public ResponseEntity<ResponseStructure<RideCompletionDTO>> completeRide(int bookingId, String paymentType) {
 
+        Booking booking = br.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-    // DELETE DRIVER  (returns ResponseStructure<String>)
-    
-    public ResponseEntity<ResponseStructure<String>> deleteDriver(long mobileNo) {
-
-        ResponseStructure<String> rs = new ResponseStructure<>();
-
-        Driver driver = dr.findByMobileno(mobileNo).orElse(null);
-
-        if (driver != null) {
-            dr.delete(driver);
-
-            rs.setStatuscode(200);
-            rs.setMessage("Driver deleted successfully");
-            rs.setData("Deleted");
-
-            return ResponseEntity.ok(rs);
-        }
-
-        rs.setStatuscode(404);
-        rs.setMessage("Driver not found");
-        rs.setData("Not Found");
-
-        return ResponseEntity.status(404).body(rs);
-    }
-
-
-
-    // UPDATE DRIVER LOCATION (returns ResponseStructure<String>)
-    public ResponseEntity<ResponseStructure<String>> updateDriverLocation(long mobileNo,
-                                                                          String latitude,
-                                                                          String longitude) {
-
-        Driver driver = dr.findByMobileno(mobileNo)
-                .orElseThrow(() -> new DriverNotFoundException("Driver Not found"));
-
-        String city = getCityName(latitude, longitude);
-
-        if (driver.getVehicle() != null) {
-            Vehicle v = driver.getVehicle();
-            v.setCurrentCity(city);
-
-            vr.save(v);
-        }
-
-        ResponseStructure<String> rs = new ResponseStructure<>();
-        rs.setStatuscode(200);
-        rs.setMessage("Driver location updated successfully");
-        rs.setData("Updated to: " + city);
-
-        return ResponseEntity.ok(rs);
-    }
-
-//CompletionRide
-    
-    public ResponseEntity<ResponseStructure<RideCompletionDTO>>
-    completeRide(int bookingId, String paymentType) {
-
-        if (paymentType.equalsIgnoreCase("CASH")) {
-            return cashPayment(bookingId);
-        } 
-        else if (paymentType.equalsIgnoreCase("UPI")) {
-            return upiPayment(bookingId);
-        } 
-        else {
-            throw new RuntimeException("Invalid payment type");
-        }
-    }
-
-    
-    // CASH PAYMENT
-    
-    private ResponseEntity<ResponseStructure<RideCompletionDTO>>
-    cashPayment(int bookingId) {
-
-        RideCompletionDTO dto = completeRideCommonLogic(bookingId, "CASH");
-
-        ResponseStructure<RideCompletionDTO> rs = new ResponseStructure<>();
-        rs.setStatuscode(200);
-        rs.setMessage("Cash payment successful");
-        rs.setData(dto);
-
-        return ResponseEntity.ok(rs);
-    }
-
-    
-    // UPI PAYMENT
-    
-    private ResponseEntity<ResponseStructure<RideCompletionDTO>>
-    upiPayment(int bookingId) {
-
-        RideCompletionDTO dto = completeRideCommonLogic(bookingId, "UPI");
-
-        ResponseStructure<RideCompletionDTO> rs = new ResponseStructure<>();
-        rs.setStatuscode(200);
-        rs.setMessage("UPI payment successful");
-        rs.setData(dto);
-
-        return ResponseEntity.ok(rs);
-    }
-
-    // COMMON RIDE COMPLETION LOGIC
-    
-    private RideCompletionDTO completeRideCommonLogic(int bookingId, String paymentType) {
-
-        Booking booking = br.findById(bookingId).orElseThrow(() -> new RuntimeException("Booking not found"));
-
-        
         booking.setBookingStatus("COMPLETED");
         booking.setPaymentStatus("PAID");
 
@@ -246,14 +128,6 @@ public class DriverService {
 
         Vehicle vehicle = booking.getVehicle();
         vehicle.setAvailableStatus("AVAILABLE");
-
-        //penality calculation
-        
-        double fare = booking.getFare();           
-        int penalityCount = customer.getPenality(); 
-        int penalityPercent = penalityCount * 10;
-
-        double finalAmount = fare + (fare * penalityPercent / 100.0);
 
         Payment payment = new Payment();
         payment.setBooking(booking);
@@ -273,84 +147,119 @@ public class DriverService {
         dto.setVehicle(vehicle);
         dto.setPayment(payment);
 
-        return dto;
+        ResponseStructure<RideCompletionDTO> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("Ride completed successfully");
+        rs.setData(dto);
+
+        return ResponseEntity.ok(rs);
     }
-    
 
-//    See all Booking History
-
+    // ---------------- BOOKING HISTORY ----------------
     public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(long mobileNo) {
 
-    	Driver d = dr.findByMobileno(mobileNo).orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
+        Driver driver = dr.findByMobileno(mobileNo)
+                .orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
 
-        List<Booking> blist = d.getBookings();
-        List<RideDetailsDTO> rideDetailsdto = new ArrayList<>();
+        List<RideDetailsDTO> rideDetails = new ArrayList<>();
         double totalAmount = 0;
 
-        for (Booking b : blist) {
-            RideDetailsDTO rdto = new RideDetailsDTO();
-            rdto.setFromLoc(b.getSourceLoc());
-            rdto.setToLoc(b.getDestinationLoc());
-            rdto.setDistance(b.getDistanceTravelled());
-            rdto.setFare(b.getFare());
+        for (Booking b : driver.getBookings()) {
+            RideDetailsDTO dto = new RideDetailsDTO();
+            dto.setFromLoc(b.getSourceLoc());
+            dto.setToLoc(b.getDestinationLoc());
+            dto.setDistance(b.getDistanceTravelled());
+            dto.setFare(b.getFare());
 
             totalAmount += b.getFare();
-            rideDetailsdto.add(rdto); 
+            rideDetails.add(dto);
         }
 
-        BookingHistoryDto bookingHistorydto = new BookingHistoryDto();
-        bookingHistorydto.setHistory(rideDetailsdto);
-        bookingHistorydto.setTotalAmount(totalAmount);
+        BookingHistoryDto history = new BookingHistoryDto();
+        history.setHistory(rideDetails);
+        history.setTotalAmount(totalAmount);
 
-        ResponseStructure<BookingHistoryDto> responsestructure = new ResponseStructure<>();
-        responsestructure.setStatuscode(200);
-        responsestructure.setMessage("Booking history fetched successfully");
-        responsestructure.setData(bookingHistorydto);
+        ResponseStructure<BookingHistoryDto> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("Booking history fetched successfully");
+        rs.setData(history);
 
-        return ResponseEntity.ok(responsestructure);
+        return ResponseEntity.ok(rs);
     }
 
-    //CANCLELATION BY DRIVER
-    
-    public void cancelBooking(int id, int bookingId) {
-    	Driver driver = dr.findById(id)
+    // ---------------- CANCELLATION BY DRIVER ----------------
+    public void cancelBooking(int driverId, LocalDate bookingDate) {
+
+        Driver driver = dr.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
-        // Find Booking by ID
-        Booking booking = br.findById(bookingId)
+        Booking booking = br.findByVehicle_IdAndBookingDate(driverId, bookingDate)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        // checking booking belongs to driver or not
-        if (booking.getVehicle().getId() != id) {
-            throw new RuntimeException("Booking does not belong to this driver");
+        if ("canceled by driver".equalsIgnoreCase(booking.getBookingStatus())) {
+            throw new RuntimeException("Booking already canceled");
         }
 
-        // Count driver cancellations
         int cancellationCount = 0;
-        
-        List<Booking> driverBookings = br.findByVehicleId(id);
-
-        for (Booking b : driverBookings) {
-            if ("canceled by driver".equals(b.getBookingStatus())) {
+        for (Booking b : br.findByVehicle_Id(driverId)) {
+            if ("canceled by driver".equalsIgnoreCase(b.getBookingStatus())) {
                 cancellationCount++;
             }
         }
 
-        // Cancel booking
         booking.setBookingStatus("canceled by driver");
+        br.save(booking);
 
-        // Block driver if cancellation limit exceeded
-        if (cancellationCount >= 4) {
+        if (cancellationCount + 1 >= 4) {
             driver.setStatus("blocked");
             dr.save(driver);
         }
-        br.save(booking);
-        
-        completeRideCommonLogic(cancellationCount, apiKey);
-
     }
 
- }
-    
+	public ResponseEntity<ResponseStructure<String>> deleteDriver(long mobileNo) {
+		ResponseStructure<String> rs = new ResponseStructure<>();
 
-    
+        Driver driver = dr.findByMobileno(mobileNo).orElse(null);
+
+        if (driver != null) {
+            dr.delete(driver);
+
+            rs.setStatuscode(200);
+            rs.setMessage("Driver deleted successfully");
+            rs.setData("Deleted");
+
+            return ResponseEntity.ok(rs);
+        }
+
+        rs.setStatuscode(404);
+        rs.setMessage("Driver not found");
+        rs.setData("Not Found");
+
+        return ResponseEntity.status(404).body(rs);
+
+	}
+
+	public ResponseEntity<ResponseStructure<String>> updateDriverLocation(long mobileNo, String latitude,
+			String longitude) {
+		Driver driver = dr.findByMobileno(mobileNo)
+                .orElseThrow(() -> new DriverNotFoundException("Driver Not found"));
+
+        String city = getCityName(latitude, longitude);
+
+        if (driver.getVehicle() != null) {
+            Vehicle v = driver.getVehicle();
+            v.setCurrentCity(city);
+
+            vr.save(v);
+        }
+
+        ResponseStructure<String> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("Driver location updated successfully");
+        rs.setData("Updated to: " + city);
+
+        return ResponseEntity.ok(rs);
+
+	}
+}
+ 
