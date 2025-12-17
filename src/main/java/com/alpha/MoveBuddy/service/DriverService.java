@@ -233,11 +233,9 @@ public class DriverService {
 
     // COMMON RIDE COMPLETION LOGIC
     
-    private RideCompletionDTO
-    completeRideCommonLogic(int bookingId, String paymentType) {
+    private RideCompletionDTO completeRideCommonLogic(int bookingId, String paymentType) {
 
-        Booking booking = br.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        Booking booking = br.findById(bookingId).orElseThrow(() -> new RuntimeException("Booking not found"));
 
         
         booking.setBookingStatus("COMPLETED");
@@ -248,6 +246,14 @@ public class DriverService {
 
         Vehicle vehicle = booking.getVehicle();
         vehicle.setAvailableStatus("AVAILABLE");
+
+        //penality calculation
+        
+        double fare = booking.getFare();           
+        int penalityCount = customer.getPenality(); 
+        int penalityPercent = penalityCount * 10;
+
+        double finalAmount = fare + (fare * penalityPercent / 100.0);
 
         Payment payment = new Payment();
         payment.setBooking(booking);
@@ -269,14 +275,13 @@ public class DriverService {
 
         return dto;
     }
+    
 
-
+//    See all Booking History
 
     public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(long mobileNo) {
 
-    	Driver d = dr.findByMobileno(mobileNo)
-                .orElseThrow(() ->
-                        new DriverNotFoundException("Driver Not Found"));
+    	Driver d = dr.findByMobileno(mobileNo).orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
 
         List<Booking> blist = d.getBookings();
         List<RideDetailsDTO> rideDetailsdto = new ArrayList<>();
@@ -322,7 +327,8 @@ public class DriverService {
 
         // Count driver cancellations
         int cancellationCount = 0;
-        List<Booking> driverBookings = br.findByVehicle_Driver_Id(id);
+        
+        List<Booking> driverBookings = br.findByVehicleId(id);
 
         for (Booking b : driverBookings) {
             if ("canceled by driver".equals(b.getBookingStatus())) {
@@ -340,12 +346,10 @@ public class DriverService {
         }
         br.save(booking);
         
-        
-
-        
-//        completeRideCommonLogic(cancellationCount, apiKey);
+        completeRideCommonLogic(cancellationCount, apiKey);
 
     }
+
  }
     
 

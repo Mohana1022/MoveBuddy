@@ -1,5 +1,6 @@
 package com.alpha.MoveBuddy.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.GeneratedValue;
@@ -25,9 +26,13 @@ public class Vehicle {
 	private int pricePerKM;
 	private double avgSpeed;
 	
-	@OneToOne
-	@MapsId
-	@JoinColumn(name = "id") 
+//	@OneToOne(mappedBy = "vehicle", cascade = CascadeType.ALL)
+//	@MapsId
+//	@JoinColumn(name = "id") 
+//	private Driver driver;
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "driver_id")
 	private Driver driver;
 
 	

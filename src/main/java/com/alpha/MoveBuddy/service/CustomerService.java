@@ -1,8 +1,10 @@
 package com.alpha.MoveBuddy.service;
 
 import com.alpha.MoveBuddy.DTO.AvailableVehiclesDTO;
+import com.alpha.MoveBuddy.DTO.BookingHistoryDto;
 import com.alpha.MoveBuddy.DTO.CustomerActiveBookingDTO;
 import com.alpha.MoveBuddy.DTO.RegisterCustomerDTO;
+import com.alpha.MoveBuddy.DTO.RideDetailsDTO;
 import com.alpha.MoveBuddy.DTO.VehicleDetailsDTO;
 import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.Repository.BookingRepository;
@@ -67,6 +69,7 @@ public class CustomerService {
         c.setGender(dto.getGender());
         c.setMobileNo(dto.getMobileNo());
         c.setCurrentLoc(city);
+        
         // booking list remains empty as per your requirement
 
         customerRepo.save(c);
@@ -134,62 +137,8 @@ public class CustomerService {
         return rs;
     }
     
-    private void validateDestination(String destination) {
-
-        if (destination == null || destination.isBlank()) {
-            throw new InvalidLocationException();
-        }
-
-        String url = "https://us1.locationiq.com/v1/search.php?key=" + apiKey +
-                     "&format=json&q=" + URLEncoder.encode(destination, StandardCharsets.UTF_8);
-
-        Object obj = restTemplate.getForObject(url, Object.class);
-
-        // Response should be a list
-        if (!(obj instanceof List<?> list)) {
-            throw new InvalidLocationException();
-        }
-
-        //  List should not be empty
-        if (list.isEmpty()) {
-            throw new InvalidLocationException();
-        }
-
-        // First element should be a map
-        Object first = list.get(0);
-        if (!(first instanceof Map<?, ?> map)) {
-            throw new InvalidLocationException();
-        }
-
-        //  Latitude and longitude must exist
-        if (!map.containsKey("lat") || !map.containsKey("lon")) {
-            throw new InvalidLocationException();
-        }
-
-        String lat = map.get("lat").toString();
-        String lon = map.get("lon").toString();
-
-        //  Must be numeric
-        if (!isNumber(lat) || !isNumber(lon)) {
-            throw new InvalidLocationException();
-        }
-    }
-    
-    private boolean isNumber(String s) {
-        if (s == null || s.isBlank()) return false;
-
-        for (char c : s.toCharArray()) {
-            if (!Character.isDigit(c) && c != '.' && c != '-') {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
     // GET AVAILABLE VEHICLES
 
-    
     public ResponseStructure<AvailableVehiclesDTO> getAvailableVehicles(long mobileNumber, String destinationLocation) {
 
         ResponseStructure<AvailableVehiclesDTO> structure = new ResponseStructure<>();
@@ -198,27 +147,26 @@ public class CustomerService {
         Customer customer = customerRepo.findByMobileNo(mobileNumber).orElseThrow(()-> new CustomerNotFoundException());
 
         String sourceLocation = customer.getCurrentLoc();
-        if (sourceLocation == null || sourceLocation.isBlank()||
-            sourceLocation == destinationLocation||destinationLocation == null || destinationLocation.isBlank())
-        {
-      
+
+        if (sourceLocation == null || sourceLocation.isBlank()
+                || destinationLocation == null || destinationLocation.isBlank()
+                || sourceLocation.equalsIgnoreCase(destinationLocation)) {
+
             throw new InvalidLocationException();
         }
-//
-//        //  Direct validation (NO TRY–CATCH)
-//        if(!validateDestination(destinationLocation)){
-//        	throw new InvalidLocationException();
-//        }
-//
+
 
         //  Get coordinates
         
         Map<String, Double> sourceCoords = getCoordinatesSafe(sourceLocation);
         Map<String, Double> destCoords = getCoordinatesSafe(destinationLocation);
 
-        if (destCoords == null || !destCoords.containsKey("lat") || !destCoords.containsKey("lon"))
-            throw new InvalidLocationException();
+        // ❌ Destination not found
+        if (destCoords == null || destCoords.isEmpty()|| !destCoords.containsKey("lat")|| !destCoords.containsKey("lon")) {
 
+            throw new InvalidLocationException();
+        }
+        
         double slat = sourceCoords.get("lat");
         double slon = sourceCoords.get("lon");
         double dlat = destCoords.get("lat");
@@ -265,7 +213,7 @@ public class CustomerService {
 
 
 
-        // 6️⃣ Create output DTO
+        //  Create output DTO
         AvailableVehiclesDTO available = new AvailableVehiclesDTO();
         available.setAvailableVehicles(dtoList);
         available.setSourceLocation(sourceLocation);
@@ -274,166 +222,245 @@ public class CustomerService {
         available.setC(customer);
 
         structure.setMessage("Available vehicles fetched successfully");
-        structure.setStatuscode(HttpStatus.OK.value());
+        structure.setStatuscode(HttpStatus.FOUND.value());
         structure.setData(available);
 
         return structure;
-    }
+        }
+    
 
 
     // HELPER: Safe coordinates fetch
     
+    public ResponseStructure<AvailableVehiclesDTO> getAllAvailableVehicles(
+            long mobileNumber, String destinationLocation) {
+
+        Customer customer = customerRepo.findByMobileNo(mobileNumber)
+                .orElseThrow(CustomerNotFoundException::new);
+
+        String sourceLocation = customer.getCurrentLoc();
+
+        if (sourceLocation == null || sourceLocation.isBlank()
+                || destinationLocation == null || destinationLocation.isBlank()
+                || sourceLocation.equalsIgnoreCase(destinationLocation)) {
+
+            throw new InvalidLocationException();
+        }
+
+        // ✅ STRICT DESTINATION VALIDATION
+        Map<String, Double> sourceCoords = getCoordinatesSafe(sourceLocation);
+        Map<String, Double> destCoords = getCoordinatesSafe(destinationLocation);
+
+        double slat = sourceCoords.get("lat");
+        double slon = sourceCoords.get("lon");
+        double dlat = destCoords.get("lat");
+        double dlon = destCoords.get("lon");
+
+        Map<String, Object> distMap = getDistanceSafe(slat, slon, dlat, dlon);
+
+        double distanceKm = (double) distMap.get("distance") / 1000.0;
+        double durationMinutes = (double) distMap.get("time") / 60.0;
+
+        List<Vehicle> vehicles =
+                vehicleRepo.findVehiclesByCity(sourceLocation, "Available");
+
+        List<VehicleDetailsDTO> dtoList = new ArrayList<>();
+
+        for (Vehicle v : vehicles) {
+
+            double avgSpeed = distanceKm / (durationMinutes / 60.0);
+
+            VehicleDetailsDTO dto = new VehicleDetailsDTO();
+            dto.setV(v);
+            dto.setFare((int) (distanceKm * v.getPricePerKM()));
+            dto.setEstimatedTime((int) durationMinutes);
+            dto.setAveragespeed(avgSpeed);
+
+            v.setAvgSpeed(avgSpeed);
+            dtoList.add(dto);
+        }
+
+        AvailableVehiclesDTO available = new AvailableVehiclesDTO();
+        available.setAvailableVehicles(dtoList);
+        available.setSourceLocation(sourceLocation);
+        available.setDestination(destinationLocation);
+        available.setDistance(distanceKm);
+        available.setC(customer);
+
+        ResponseStructure<AvailableVehiclesDTO> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.OK.value());
+        rs.setMessage("Available vehicles fetched successfully");
+        rs.setData(available);
+
+        return rs;
+    }
+
+    /* =====================================================
+       LOCATION VALIDATION CORE
+       ===================================================== */
+
     private Map<String, Double> getCoordinatesSafe(String place) {
 
-        List<Map<String, Object>> res = Optional.ofNullable(
-                restTemplate.getForObject(
-                        "https://us1.locationiq.com/v1/search.php?key=" + apiKey +
-                        "&format=json&q=" + URLEncoder.encode(place, StandardCharsets.UTF_8),
-                        List.class
-                )
-        ).orElseThrow(() ->
-                new CoordinatesNotFoundException("No response from coordinates API")
+        String url = "https://us1.locationiq.com/v1/search.php?key=" + apiKey +
+                "&format=json&q=" + URLEncoder.encode(place, StandardCharsets.UTF_8);
+
+        List<Map<String, Object>> res = restTemplate.getForObject(url, List.class);
+
+        if (res == null || res.isEmpty()) {
+            throw new InvalidLocationException();
+        }
+
+        Map<String, Object> loc = res.get(0);
+
+        String type = String.valueOf(loc.get("type"));
+
+        Set<String> allowedTypes = Set.of(
+                "city", "town", "village", "administrative", "state", "county"
         );
 
-        Map<String, Object> loc = res.stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new CoordinatesNotFoundException("Invalid place: " + place)
-                );
+        if (!allowedTypes.contains(type.toLowerCase())) {
+            throw new InvalidLocationException(
+            );
+        }
 
-        Double lat = Optional.ofNullable(loc.get("lat"))
-                .map(Object::toString)
-                .map(Double::parseDouble)
-                .orElseThrow(() ->
-                        new CoordinatesNotFoundException("Latitude missing for: " + place)
-                );
-
-        Double lon = Optional.ofNullable(loc.get("lon"))
-                .map(Object::toString)
-                .map(Double::parseDouble)
-                .orElseThrow(() ->
-                        new CoordinatesNotFoundException("Longitude missing for: " + place)
-                );
+        double lat = Double.parseDouble(loc.get("lat").toString());
+        double lon = Double.parseDouble(loc.get("lon").toString());
 
         return Map.of("lat", lat, "lon", lon);
     }
 
-    
-    // HELPER: Safe distance fetch
-    
-    
-    private Map<String, Object> getDistanceSafe(double slat, double slon, double dlat, double dlon) {
+    /* =====================================================
+       DISTANCE CALCULATION
+       ===================================================== */
+
+    private Map<String, Object> getDistanceSafe(
+            double slat, double slon, double dlat, double dlon) {
 
         String url = "https://api-v2.distancematrix.ai/maps/api/distancematrix/json"
                 + "?origins=" + slat + "," + slon
                 + "&destinations=" + dlat + "," + dlon
                 + "&key=" + distanceMatrixApiKey;
 
-        Map<String, Object> response = Optional.ofNullable(
-                restTemplate.getForObject(url, Map.class)
-        ).orElseThrow(() ->
-                new DistanceCalculationFailedException("No response from distance matrix API")
-        );
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
 
-        List<Map<String, Object>> rows = Optional.ofNullable(
-                (List<Map<String, Object>>) response.get("rows")
-        ).orElseThrow(() ->
-                new DistanceCalculationFailedException("Rows missing in distance API")
-        );
+        if (response == null)
+            throw new DistanceCalculationFailedException("Distance API failed");
 
-        Map<String, Object> row0 = rows.stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new DistanceCalculationFailedException("No rows available")
-                );
+        Map element =
+                (Map) ((List) ((Map) ((List) response.get("rows")).get(0))
+                        .get("elements")).get(0);
 
-        List<Map<String, Object>> elements = Optional.ofNullable(
-                (List<Map<String, Object>>) row0.get("elements")
-        ).orElseThrow(() ->
-                new DistanceCalculationFailedException("Elements missing in distance API")
-        );
-
-        Map<String, Object> elem0 = elements.stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new DistanceCalculationFailedException("No elements available")
-                );
-
-        Map<String, Object> dist = Optional.ofNullable(
-                (Map<String, Object>) elem0.get("distance")
-        ).orElseThrow(() ->
-                new DistanceCalculationFailedException("Distance value missing")
-        );
-
-        Map<String, Object> dur = Optional.ofNullable(
-                (Map<String, Object>) elem0.get("duration")
-        ).orElseThrow(() ->
-                new DistanceCalculationFailedException("Time value missing")
-        );
+        Map distance = (Map) element.get("distance");
+        Map duration = (Map) element.get("duration");
 
         return Map.of(
-                "distance", Double.parseDouble(dist.get("value").toString()),
-                "time", Double.parseDouble(dur.get("value").toString())
+                "distance", Double.parseDouble(distance.get("value").toString()),
+                "time", Double.parseDouble(duration.get("value").toString())
         );
     }
-    
-    
-//    SEE COUSTOMER ACTIVE BOOKINGS
-    public ResponseEntity<ResponseStructure<CustomerActiveBookingDTO>> CustomerSeeActiveBooking(long mobileNo) {
 
-    	Customer customer = customerRepo.findByMobileNo(mobileNo)
-    	        .orElseThrow(() -> new RuntimeException("Customer not found"));
+ 
+//       CUSTOMER ACTIVE BOOKING
+       
 
-		customer.setBookingflag(true);  // modify managed entity
-    	customerRepo.save(customer);    // persists the change
+    public ResponseEntity<ResponseStructure<CustomerActiveBookingDTO>>CustomerSeeActiveBooking(long mobileNo) {
 
-        Booking booking = bookingRepo.findActiveBookingByCustomerId(customer.getMobileNo());
+        Customer customer = customerRepo.findByMobileNo(mobileNo).orElseThrow(CustomerNotFoundException::new);
 
-        // No active booking
-        if (booking == null) {
-            customer.setBookingflag(false);
-            customerRepo.save(customer);
-            throw new RuntimeException("No current booking found");
-        }
+        Booking booking =bookingRepo.findActiveBookingByCustomerId(customer.getMobileNo());
 
-        // Prepare DTO
-        CustomerActiveBookingDTO customerActiveBookingDTO = new CustomerActiveBookingDTO();
-        customerActiveBookingDTO.setCustomername(customer.getName());
-        customerActiveBookingDTO.setCustomerMobile(customer.getMobileNo());
-        customerActiveBookingDTO.setBooking(booking);
-        customerActiveBookingDTO.setCurrentLocation(booking.getVehicle().getCurrentCity());
+        if (booking == null)
+        	throw new NoCurrentBookingException();
 
-        // Update booking flag based on booking status
-        boolean isBooked = booking.getBookingStatus() != null &&
-                           booking.getBookingStatus().trim().equalsIgnoreCase("booked");
-        customer.setBookingflag(isBooked);
-        customerRepo.save(customer);
+        CustomerActiveBookingDTO dto = new CustomerActiveBookingDTO();
+        dto.setCustomername(customer.getName());
+        dto.setCustomerMobile(customer.getMobileNo());
+        dto.setBooking(booking);
+        dto.setCurrentLocation(booking.getVehicle().getCurrentCity());
 
-        // Response
         ResponseStructure<CustomerActiveBookingDTO> rs = new ResponseStructure<>();
         rs.setStatuscode(HttpStatus.OK.value());
-        rs.setMessage("Active Booking fetched successfully");
-        rs.setData(customerActiveBookingDTO);
+        rs.setMessage("Active booking fetched successfully");
+        rs.setData(dto);
 
         return new ResponseEntity<>(rs, HttpStatus.OK);
     }
-
-//    cancillation by customer
     
-	public ResponseStructure<Customer> customerCancellation(int bookingid, int customerid) {
+// See Customer Booking History
+    
+    public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeCustomerBookingHistory(long mobileNo) {
 
-		Customer customer = customerRepo.findById(customerid).orElseThrow(()-> new CustomerNotFoundException());
-		customer.setPenality(customer.getPenality()+1);
-		Booking booking = bookingRepo.findById(bookingid).orElseThrow(()-> new BookingNotFoundException());
-		booking.setBookingStatus("cancelled by customer");
-		customerRepo.save(customer);
-		bookingRepo.save(booking);
-		
-		 // Response
-		ResponseStructure<Customer> rs = new ResponseStructure<>();
+        // 1. Fetch the customer
+        Customer customer = customerRepo.findByMobileNo(mobileNo)
+                .orElseThrow(CustomerNotFoundException::new);
+
+        // 2. Fetch bookings of the customer
+        List<Booking> bookings = bookingRepo.findByCustomerMobileNo(mobileNo);
+
+        // 3. Filter only completed bookings
+        List<Booking> completedBookings = bookings.stream()
+                .filter(b -> "COMPLETED".equalsIgnoreCase(b.getBookingStatus()))
+                .toList();
+
+        // 4. If no completed bookings exist, throw exception
+        if (completedBookings.isEmpty()) {
+            throw new NoCurrentBookingException();
+        }
+
+        // 5. Build history DTO
+        List<RideDetailsDTO> history = new ArrayList<>();
+        double totalAmount = 0;
+
+        for (Booking b : completedBookings) {
+            RideDetailsDTO dto = new RideDetailsDTO();
+            dto.setFromLoc(b.getSourceLoc());
+            dto.setToLoc(b.getDestinationLoc());
+            dto.setDistance(b.getDistanceTravelled());
+            dto.setFare(b.getFare());
+
+            history.add(dto);
+            totalAmount += b.getFare();
+        }
+
+        BookingHistoryDto bookingHistoryDto = new BookingHistoryDto();
+        bookingHistoryDto.setHistory(history);
+        bookingHistoryDto.setTotalAmount(totalAmount);
+
+        // 6. Wrap in ResponseStructure
+        ResponseStructure<BookingHistoryDto> response = new ResponseStructure<>();
+        response.setStatuscode(HttpStatus.OK.value());
+        response.setMessage("Customer booking history fetched successfully");
+        response.setData(bookingHistoryDto);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    /* =====================================================
+       CUSTOMER CANCELLATION
+       ===================================================== */
+
+    @Transactional
+    public ResponseStructure<Customer> customerCancellation(
+            int bookingId, int customerId) {
+
+        Customer customer = customerRepo.findById(customerId)
+                .orElseThrow(CustomerNotFoundException::new);
+
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(BookingNotFoundException::new);
+
+        customer.setPenality(customer.getPenality() + 1);
+        booking.setBookingStatus("cancelled by customer");
+
+        customerRepo.save(customer);
+        bookingRepo.save(booking);
+
+        ResponseStructure<Customer> rs = new ResponseStructure<>();
         rs.setStatuscode(HttpStatus.OK.value());
-        rs.setMessage("Customer found");
+        rs.setMessage("Booking cancelled successfully");
         rs.setData(customer);
+
         return rs;
-    }		
+    }
 }

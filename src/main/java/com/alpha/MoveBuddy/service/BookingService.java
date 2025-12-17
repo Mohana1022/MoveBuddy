@@ -34,7 +34,7 @@ public class BookingService {
     @Autowired
     private BookingRepository bookingRepository;
 
-    // 1️⃣ Book a vehicle
+    //  Book a vehicle
     @Transactional
     public ResponseStructure<Booking> bookVehicle(Long customerMobile, BookingDTO dto) {
 
@@ -53,13 +53,13 @@ public class BookingService {
         booking.setDistanceTravelled(dto.getDistanceTravelled());
         booking.setFare(dto.getFare());
         booking.setEstimatedTime(dto.getEstimatedTime());
-        booking.setBookingStatus("booked"); // consistent lowercase
+        booking.setBookingStatus("booked");
 
         bookingRepository.save(booking);
 
         // Add booking to customer and set flag
         customer.getBookinglist().add(booking);
-        customer.setBookingflag(true);  // flag true immediately
+        customer.setBookingflag(true);
         customerRepository.save(customer);
 
         // Add booking to driver
@@ -82,4 +82,5 @@ public class BookingService {
 
         return rs;
     }
+    
 }

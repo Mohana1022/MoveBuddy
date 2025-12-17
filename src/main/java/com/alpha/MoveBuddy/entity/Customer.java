@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,13 +26,14 @@ public class Customer {
 	private long mobileNo;
 	private String emailId;
 	private String currentLoc;
+	
 	@Column(nullable = false)
 	private int penality = 0;
 	
 	@Column(name="bookingflag")
 	private boolean bookingflag = false;
 	
-	@OneToMany
+	@OneToMany(mappedBy = "customer")
 	@JsonIgnore
 	private List<Booking> bookinglist = new ArrayList<>();
 

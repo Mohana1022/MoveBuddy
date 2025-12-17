@@ -57,6 +57,7 @@ public class DriverController {
         return ds.completeRide(bookingId, paymentType);
     }
 	
+	
 	@GetMapping("/seeAllbookinghistory")
 	public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(@RequestParam long mobileNo){
 		return ds.seeAllBookingHistory(mobileNo);

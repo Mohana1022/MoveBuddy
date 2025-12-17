@@ -18,7 +18,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer>{
 	@Query("SELECT b FROM Booking b WHERE b.customer.mobileNo = :mobileNo AND LOWER(b.bookingStatus) = 'booked'")
 	Booking findActiveBookingByCustomerId(@Param("mobileNo") Long mobileNo);
 
-	List<Booking> findByVehicle_Driver_Id(int id);
+	List<Booking> findByVehicleId(int id);
 
-	
 }

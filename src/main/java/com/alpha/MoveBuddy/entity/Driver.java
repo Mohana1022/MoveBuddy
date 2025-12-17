@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,12 +34,23 @@ public class Driver {
 	private String mailid;
 	
 	
-	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+//	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
+////	@JsonIgnore
+//	@JoinColumn(name = "vehicle_id")
+//	private Vehicle vehicle;
+//	
+//	 @OneToMany(cascade = CascadeType.ALL,mappedBy = "vehicle.driver")
+//	 private List<Booking> bookings = new ArrayList<>();
+	
+	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL,fetch=FetchType.EAGER)
 	@JsonIgnore
 	private Vehicle vehicle;
-	
-	 @OneToMany(cascade = CascadeType.ALL)
-	 private List<Booking> bookings = new ArrayList<>();
+
+	// If you want to get bookings of a driver:
+	@OneToMany
+	@JoinColumn(name = "vehicle_id", referencedColumnName = "id")
+	@JsonIgnore
+	private List<Booking> bookings = new ArrayList<>();
 
 	public long getLicenseNo() {
 		return licenseNo;

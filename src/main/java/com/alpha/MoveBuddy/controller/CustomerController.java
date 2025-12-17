@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.DTO.AvailableVehiclesDTO;
+import com.alpha.MoveBuddy.DTO.BookingHistoryDto;
 import com.alpha.MoveBuddy.DTO.RegisterCustomerDTO;
 import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.service.CustomerService;
@@ -44,8 +45,13 @@ public class CustomerController {
     }
     
     @GetMapping("/servicemethod")
-    public void servicemethod(@RequestParam long mobileNo) {
-    	customerservice.findCustomer(mobileNo);
+    public ResponseStructure<Customer> servicemethod(@RequestParam long mobileNo) {
+    	return customerservice.findCustomer(mobileNo);
+    }
+    
+    @GetMapping("/seecustomerbookinghistory")
+    public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeCustomerBookingHistory(@RequestParam long mobileNo) {
+    	return customerservice.seeCustomerBookingHistory(mobileNo);
     }
     
     @PutMapping("/customerCancellation")

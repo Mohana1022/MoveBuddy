@@ -48,10 +48,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidLocationException.class)
     public ResponseEntity<ResponseStructure<String>> handleInvalidLocation(InvalidLocationException ex) {
         ResponseStructure<String> response = new ResponseStructure<>();
-        response.setStatuscode(HttpStatus.BAD_REQUEST.value());
+        response.setStatuscode(HttpStatus.NOT_FOUND.value());
         response.setMessage("Invalid Location");
         response.setData(ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
@@ -61,6 +61,16 @@ public class GlobalExceptionHandler {
         response.setMessage("Internal Server Error");
         response.setData(ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    @ExceptionHandler(NoCurrentBookingException.class)
+    public ResponseEntity<ResponseStructure<String>> NoCurrentBookingExceptionHandler(NoCurrentBookingException ex){
+    	
+    	ResponseStructure<String> response = new ResponseStructure<>();
+        response.setStatuscode(HttpStatus.NOT_FOUND.value());
+        response.setMessage("No Booking");
+        response.setData("No Bookings");
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
    
   }
