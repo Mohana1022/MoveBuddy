@@ -4,14 +4,7 @@ import java.sql.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.*;
 
 @Entity
 public class Booking {
@@ -28,7 +21,6 @@ public class Booking {
     @JsonIgnore
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
-   
 
     private String sourceLoc;
     private String destinationLoc;
@@ -42,103 +34,55 @@ public class Booking {
     private String bookingStatus = "PENDING";
     private String paymentStatus = "NOT PAID";
 
+    // OTP FIELD
+    @Column(length = 4)
+    private String otp;
+
     @PrePersist
     protected void onCreate() {
         this.bookingDate = new Date(System.currentTimeMillis());
     }
 
-	public int getId() {
-		return id;
-	}
+    // getters & setters
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-	public Customer getCustomer() {
-		return customer;
-	}
+    public Customer getCustomer() { return customer; }
+    public void setCustomer(Customer customer) { this.customer = customer; }
 
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
+    public Vehicle getVehicle() { return vehicle; }
+    public void setVehicle(Vehicle vehicle) { this.vehicle = vehicle; }
 
-	public Vehicle getVehicle() {
-		return vehicle;
-	}
+    public String getSourceLoc() { return sourceLoc; }
+    public void setSourceLoc(String sourceLoc) { this.sourceLoc = sourceLoc; }
 
-	public void setVehicle(Vehicle vehicle) {
-		this.vehicle = vehicle;
-	}
+    public String getDestinationLoc() { return destinationLoc; }
+    public void setDestinationLoc(String destinationLoc) { this.destinationLoc = destinationLoc; }
 
-	
-	public String getSourceLoc() {
-		return sourceLoc;
-	}
+    public int getDistanceTravelled() { return distanceTravelled; }
+    public void setDistanceTravelled(int distanceTravelled) { this.distanceTravelled = distanceTravelled; }
 
-	public void setSourceLoc(String sourceLoc) {
-		this.sourceLoc = sourceLoc;
-	}
+    public int getFare() { return fare; }
+    public void setFare(int fare) { this.fare = fare; }
 
-	public String getDestinationLoc() {
-		return destinationLoc;
-	}
+    public int getEstimatedTime() { return estimatedTime; }
+    public void setEstimatedTime(int estimatedTime) { this.estimatedTime = estimatedTime; }
 
-	public void setDestinationLoc(String destinationLoc) {
-		this.destinationLoc = destinationLoc;
-	}
+    public Date getBookingDate() { return bookingDate; }
 
-	public int getDistanceTravelled() {
-		return distanceTravelled;
-	}
+    public String getBookingStatus() { return bookingStatus; }
+    public void setBookingStatus(String bookingStatus) { this.bookingStatus = bookingStatus; }
 
-	public void setDistanceTravelled(int distanceTravelled) {
-		this.distanceTravelled = distanceTravelled;
-	}
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
 
-	public int getFare() {
-		return fare;
-	}
+    public String getOtp() { return otp; }
+    
+    public void setOtp(String otp) { this.otp = otp; }
 
-	public void setFare(int fare) {
-		this.fare = fare;
-	}
-
-	public int getEstimatedTime() {
-		return estimatedTime;
-	}
-
-	public void setEstimatedTime(int estimatedTime) {
-		this.estimatedTime = estimatedTime;
-	}
-
-	public Date getBookingDate() {
-		return bookingDate;
-	}
-
-	public void setBookingDate(Date bookingDate) {
-		this.bookingDate = bookingDate;
-	}
-
-	public String getBookingStatus() {
-		return bookingStatus;
-	}
-
-	public void setBookingStatus(String bookingStatus) {
-		this.bookingStatus = bookingStatus;
-	}
-
-	public String getPaymentStatus() {
-		return paymentStatus;
-	}
-
-	public void setPaymentStatus(String paymentStatus) {
-		this.paymentStatus = paymentStatus;
-	}
-
-	public Booking(Customer customer, Vehicle vehicle, Driver driver, String sourceLoc, String destinationLoc,
-			int distanceTravelled, int fare, int estimatedTime, Date bookingDate, String bookingStatus,
-			String paymentStatus) {
+	public Booking(Customer customer, Vehicle vehicle, String sourceLoc, String destinationLoc, int distanceTravelled,
+			int fare, int estimatedTime, Date bookingDate, String bookingStatus, String paymentStatus, String otp) {
 		super();
 		this.customer = customer;
 		this.vehicle = vehicle;
@@ -150,6 +94,7 @@ public class Booking {
 		this.bookingDate = bookingDate;
 		this.bookingStatus = bookingStatus;
 		this.paymentStatus = paymentStatus;
+		this.otp = otp;
 	}
 
 	public Booking() {
@@ -158,10 +103,12 @@ public class Booking {
 
 	@Override
 	public String toString() {
-		return "Booking [id=" + id + ", customer=" + customer + ", vehicle=" + vehicle + ", sourceLoc=" + sourceLoc + ", destinationLoc=" + destinationLoc + ", distanceTravelled="
-				+ distanceTravelled + ", fare=" + fare + ", estimatedTime=" + estimatedTime + ", bookingDate="
-				+ bookingDate + ", bookingStatus=" + bookingStatus + ", paymentStatus=" + paymentStatus + "]";
+		return "Booking [id=" + id + ", customer=" + customer + ", vehicle=" + vehicle + ", sourceLoc=" + sourceLoc
+				+ ", destinationLoc=" + destinationLoc + ", distanceTravelled=" + distanceTravelled + ", fare=" + fare
+				+ ", estimatedTime=" + estimatedTime + ", bookingDate=" + bookingDate + ", bookingStatus="
+				+ bookingStatus + ", paymentStatus=" + paymentStatus + ", otp=" + otp + "]";
 	}
-
+    
+    
     
 }

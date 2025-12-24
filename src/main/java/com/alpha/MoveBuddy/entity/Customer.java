@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Customer {
@@ -36,6 +37,33 @@ public class Customer {
 	@OneToMany(mappedBy = "customer")
 	@JsonIgnore
 	private List<Booking> bookinglist = new ArrayList<>();
+	
+	@OneToOne
+	private User user;
+
+	
+	public Customer(String name, int age, String gender, long mobileNo, String emailId, String currentLoc, int penality,
+			boolean bookingflag, List<Booking> bookinglist, User user) {
+		super();
+		this.name = name;
+		this.age = age;
+		this.gender = gender;
+		this.mobileNo = mobileNo;
+		this.emailId = emailId;
+		this.currentLoc = currentLoc;
+		this.penality = penality;
+		this.bookingflag = bookingflag;
+		this.bookinglist = bookinglist;
+		this.user = user;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 
 	public int getId() {
 		return id;
@@ -139,7 +167,7 @@ public class Customer {
 	public String toString() {
 		return "Customer [id=" + id + ", name=" + name + ", age=" + age + ", gender=" + gender + ", mobileNo="
 				+ mobileNo + ", emailId=" + emailId + ", currentLoc=" + currentLoc + ", penality=" + penality
-				+ ", bookingflag=" + bookingflag + ", bookinglist=" + bookinglist + "]";
+				+ ", bookingflag=" + bookingflag + ", bookinglist=" + bookinglist + ", user=" + user + "]";
 	}
 
 	

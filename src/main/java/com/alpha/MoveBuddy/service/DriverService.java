@@ -19,12 +19,14 @@ import com.alpha.MoveBuddy.Repository.BookingRepository;
 import com.alpha.MoveBuddy.Repository.CustomerRepository;
 import com.alpha.MoveBuddy.Repository.DriverRepository;
 import com.alpha.MoveBuddy.Repository.PaymentRepository;
+import com.alpha.MoveBuddy.Repository.UserRepository;
 import com.alpha.MoveBuddy.Repository.VehicleRepository;
 import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.entity.Payment;
+import com.alpha.MoveBuddy.entity.User;
 import com.alpha.MoveBuddy.entity.Vehicle;
 import com.alpha.MoveBuddy.exception.DriverNotFoundException;
 
@@ -45,6 +47,10 @@ public class DriverService {
 
     @Autowired
     private PaymentRepository pr;
+    
+    @Autowired
+    private UserRepository userrepository;
+    
 
     @Value("${locationiq.api.key}")
     private String apiKey;
@@ -86,19 +92,27 @@ public class DriverService {
         v.setPricePerKM(dto.getPricePerKM());
         v.setAvgSpeed(dto.getAverageSpeed());
         v.setCurrentCity(getCityName(dto.getLatitude(), dto.getLongitude()));
+        
+        //CREATE USER
+        
+        User user = new User();
+        user.setRole("Driver");
+        user.setUsermobileNo(dto.getMobileNo());
+        user.setUserPassword(dto.getPassword());
 
         v.setDriver(d);
         d.setVehicle(v);
-
+        d.setUser(user);
+        
         Driver savedDriver = dr.save(d);
 
         ResponseStructure<Driver> rs = new ResponseStructure<>();
         rs.setStatuscode(200);
         rs.setMessage("Driver saved successfully");
         rs.setData(savedDriver);
-
         return ResponseEntity.ok(rs);
     }
+    
 
     // ---------------- FIND DRIVER ----------------
     public ResponseEntity<ResponseStructure<Driver>> findDriverByMobile(long mobileNo) {
@@ -128,6 +142,10 @@ public class DriverService {
 
         Vehicle vehicle = booking.getVehicle();
         vehicle.setAvailableStatus("AVAILABLE");
+        
+        
+        
+        //CHECK THE STATUS OF THE BOOKING (IF CONFIRMES, THROW THE EXC RIDE CANNOT BE COMPLETED)
 
         Payment payment = new Payment();
         payment.setBooking(booking);
@@ -259,7 +277,8 @@ public class DriverService {
         rs.setData("Updated to: " + city);
 
         return ResponseEntity.ok(rs);
-
+     
 	}
+	
 }
  

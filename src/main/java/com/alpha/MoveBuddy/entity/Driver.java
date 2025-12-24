@@ -51,6 +51,43 @@ public class Driver {
 	@JoinColumn(name = "vehicle_id", referencedColumnName = "id")
 	@JsonIgnore
 	private List<Booking> bookings = new ArrayList<>();
+	
+	@OneToOne
+	private User user;
+	
+	
+
+	public Driver(long licenseNo, String upiid, String name, String status, int age, Long mobileno, String gender,
+			String mailid, Vehicle vehicle, List<Booking> bookings, User user) {
+		super();
+		this.licenseNo = licenseNo;
+		this.upiid = upiid;
+		this.name = name;
+		this.status = status;
+		this.age = age;
+		this.mobileno = mobileno;
+		this.gender = gender;
+		this.mailid = mailid;
+		this.vehicle = vehicle;
+		this.bookings = bookings;
+		this.user = user;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 
 	public long getLicenseNo() {
 		return licenseNo;
@@ -155,7 +192,7 @@ public class Driver {
 	public String toString() {
 		return "Driver [id=" + id + ", licenseNo=" + licenseNo + ", upiid=" + upiid + ", name=" + name + ", status="
 				+ status + ", age=" + age + ", mobileno=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
-				+ ", vehicle=" + vehicle + ", bookinglist=" + bookings + "]";
+				+ ", vehicle=" + vehicle + ", bookings=" + bookings + ", user=" + user + "]";
 	}
 
 	
