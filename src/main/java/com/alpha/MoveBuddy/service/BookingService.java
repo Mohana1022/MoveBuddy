@@ -1,9 +1,15 @@
 package com.alpha.MoveBuddy.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.alpha.MoveBuddy.ResponseStructure;
@@ -34,6 +40,14 @@ public class BookingService {
     @Autowired
     private BookingRepository bookingRepository;
 
+    @Autowired
+    private MailService mailservice;
+    
+
+	 @Autowired
+	    private JavaMailSender javamailsender;
+	    
+   
     //  Book a vehicle
     @Transactional
     public ResponseStructure<Booking> bookVehicle(Long customerMobile, BookingDTO dto) {
@@ -55,6 +69,10 @@ public class BookingService {
         booking.setEstimatedTime(dto.getEstimatedTime());
         booking.setBookingStatus("booked");
 
+        booking.setRideOtp(generateOtp());     // 🔐 generate
+        booking.setOtpVerified(false);
+        booking.setOtpGeneratedAt(LocalDateTime.now());
+        
         bookingRepository.save(booking);
 
         // Add booking to customer and set flag
@@ -80,7 +98,40 @@ public class BookingService {
         rs.setMessage("Vehicle successfully booked");
         rs.setData(booking);
 
+        mailservice.sendMail("pmohana1022@gmal.com","Booking conformed for" + vehicle.getName(),"Hello Vehicle Bokked successfully");
+        
         return rs;
     }
+
+	private String generateOtp() {
+
+		return String.valueOf(1000 + new Random().nextInt(9999));
+	}
+
+	public String getRideOtp1(Long customerId, int bookingId) {
+		// TODO Auto-generated method stub
+		return String.valueOf(1000 + new Random().nextInt(9999));
+	}
+	// ---------------- GET RIDE OTP FOR CUSTOMER ----------------
+    public ResponseEntity<ResponseStructure<String>> getRideOtp(Long customerId, int bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        if (booking.getCustomer() == null ||
+        	    !Objects.equals(booking.getCustomer().getId(), customerId)) {
+        	    throw new RuntimeException("Booking does not belong to customer");
+        	}
+
+        ResponseStructure<String> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.OK.value());
+        rs.setMessage("OTP fetched successfully");
+        rs.setData(booking.getRideOtp());
+
+        return ResponseEntity.ok(rs);
+    }
+
+
+
+	
+	
     
 }

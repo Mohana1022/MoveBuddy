@@ -120,6 +120,11 @@ public class DriverService {
         Booking booking = br.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
+        // OTP must be verified before completing the ride
+        if (!booking.isOtpVerified()) {
+            throw new RuntimeException("OTP not verified. Cannot complete ride.");
+        }
+
         booking.setBookingStatus("COMPLETED");
         booking.setPaymentStatus("PAID");
 
@@ -216,8 +221,8 @@ public class DriverService {
         }
     }
 
-	public ResponseEntity<ResponseStructure<String>> deleteDriver(long mobileNo) {
-		ResponseStructure<String> rs = new ResponseStructure<>();
+    public ResponseEntity<ResponseStructure<String>> deleteDriver(long mobileNo) {
+        ResponseStructure<String> rs = new ResponseStructure<>();
 
         Driver driver = dr.findByMobileno(mobileNo).orElse(null);
 
@@ -236,12 +241,11 @@ public class DriverService {
         rs.setData("Not Found");
 
         return ResponseEntity.status(404).body(rs);
+    }
 
-	}
-
-	public ResponseEntity<ResponseStructure<String>> updateDriverLocation(long mobileNo, String latitude,
-			String longitude) {
-		Driver driver = dr.findByMobileno(mobileNo)
+    public ResponseEntity<ResponseStructure<String>> updateDriverLocation(long mobileNo, String latitude,
+            String longitude) {
+        Driver driver = dr.findByMobileno(mobileNo)
                 .orElseThrow(() -> new DriverNotFoundException("Driver Not found"));
 
         String city = getCityName(latitude, longitude);
@@ -259,7 +263,25 @@ public class DriverService {
         rs.setData("Updated to: " + city);
 
         return ResponseEntity.ok(rs);
+    }
 
-	}
+    // ---------------- OTP VALIDATION ----------------
+    public ResponseEntity<ResponseStructure<String>> validateRideOtp(int bookingId, String enteredOtp) {
+        Booking booking = br.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if (!booking.getRideOtp().equals(enteredOtp)) {
+            throw new RuntimeException("Invalid OTP. Ride cannot be completed.");
+        }
+
+        booking.setOtpVerified(true);
+        br.save(booking);
+
+        ResponseStructure<String> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("OTP verified successfully. Driver can complete the ride.");
+        rs.setData("OTP VERIFIED");
+
+        return ResponseEntity.ok(rs);
+    }
 }
- 
