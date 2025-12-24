@@ -25,6 +25,7 @@ import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.entity.Payment;
+import com.alpha.MoveBuddy.entity.Users;
 import com.alpha.MoveBuddy.entity.Vehicle;
 import com.alpha.MoveBuddy.exception.DriverNotFoundException;
 
@@ -86,9 +87,18 @@ public class DriverService {
         v.setPricePerKM(dto.getPricePerKM());
         v.setAvgSpeed(dto.getAverageSpeed());
         v.setCurrentCity(getCityName(dto.getLatitude(), dto.getLongitude()));
+        
+        
+        // CREATE USER
+        
+        Users users = new Users();
+        users.setRole("Driver");
+        users.setUsermobileNo(dto.getMobileNo());
+        users.setUserPassword(dto.getPassword());
 
         v.setDriver(d);
         d.setVehicle(v);
+        d.setUsers(users);
 
         Driver savedDriver = dr.save(d);
 
