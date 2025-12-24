@@ -33,24 +33,29 @@ public class Driver {
 	private String gender;
 	private String mailid;
 	
-	
-//	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL, orphanRemoval = true)
-////	@JsonIgnore
-//	@JoinColumn(name = "vehicle_id")
-//	private Vehicle vehicle;
-//	
-//	 @OneToMany(cascade = CascadeType.ALL,mappedBy = "vehicle.driver")
-//	 private List<Booking> bookings = new ArrayList<>();
+
 	
 	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL,fetch=FetchType.EAGER)
 	@JsonIgnore
 	private Vehicle vehicle;
+	
 
 	// If you want to get bookings of a driver:
 	@OneToMany
 	@JoinColumn(name = "vehicle_id", referencedColumnName = "id")
 	@JsonIgnore
 	private List<Booking> bookings = new ArrayList<>();
+	
+	@OneToOne
+	private Users users;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public long getLicenseNo() {
 		return licenseNo;
@@ -132,8 +137,16 @@ public class Driver {
 		this.bookings = bookings;
 	}
 
-	public Driver(long licenseNo, String upiid, String name, String status, int age, long mobileno, String gender,
-			String mailid, Vehicle vehicle, List<Booking> bookinglist) {
+	public Users getUsers() {
+		return users;
+	}
+
+	public void setUsers(Users users) {
+		this.users = users;
+	}
+
+	public Driver(long licenseNo, String upiid, String name, String status, int age, Long mobileno, String gender,
+			String mailid, Vehicle vehicle, List<Booking> bookings, Users users) {
 		super();
 		this.licenseNo = licenseNo;
 		this.upiid = upiid;
@@ -144,7 +157,8 @@ public class Driver {
 		this.gender = gender;
 		this.mailid = mailid;
 		this.vehicle = vehicle;
-		this.bookings = bookinglist;
+		this.bookings = bookings;
+		this.users = users;
 	}
 
 	public Driver() {
@@ -155,8 +169,9 @@ public class Driver {
 	public String toString() {
 		return "Driver [id=" + id + ", licenseNo=" + licenseNo + ", upiid=" + upiid + ", name=" + name + ", status="
 				+ status + ", age=" + age + ", mobileno=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
-				+ ", vehicle=" + vehicle + ", bookinglist=" + bookings + "]";
+				+ ", vehicle=" + vehicle + ", bookings=" + bookings + ", users=" + users + "]";
 	}
 
+	
 	
 }
