@@ -1,6 +1,7 @@
 package com.alpha.MoveBuddy.entity;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -41,6 +42,10 @@ public class Booking {
 
     private String bookingStatus = "PENDING";
     private String paymentStatus = "NOT PAID";
+    
+    private String rideOtp;         // generated at confirmation
+    private boolean otpVerified;    // false initially
+    private LocalDateTime otpGeneratedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -71,7 +76,6 @@ public class Booking {
 		this.vehicle = vehicle;
 	}
 
-	
 	public String getSourceLoc() {
 		return sourceLoc;
 	}
@@ -136,32 +140,29 @@ public class Booking {
 		this.paymentStatus = paymentStatus;
 	}
 
-	public Booking(Customer customer, Vehicle vehicle, Driver driver, String sourceLoc, String destinationLoc,
-			int distanceTravelled, int fare, int estimatedTime, Date bookingDate, String bookingStatus,
-			String paymentStatus) {
-		super();
-		this.customer = customer;
-		this.vehicle = vehicle;
-		this.sourceLoc = sourceLoc;
-		this.destinationLoc = destinationLoc;
-		this.distanceTravelled = distanceTravelled;
-		this.fare = fare;
-		this.estimatedTime = estimatedTime;
-		this.bookingDate = bookingDate;
-		this.bookingStatus = bookingStatus;
-		this.paymentStatus = paymentStatus;
+	public String getRideOtp() {
+		return rideOtp;
 	}
 
-	public Booking() {
-		super();
+	public void setRideOtp(String rideOtp) {
+		this.rideOtp = rideOtp;
 	}
 
-	@Override
-	public String toString() {
-		return "Booking [id=" + id + ", customer=" + customer + ", vehicle=" + vehicle + ", sourceLoc=" + sourceLoc + ", destinationLoc=" + destinationLoc + ", distanceTravelled="
-				+ distanceTravelled + ", fare=" + fare + ", estimatedTime=" + estimatedTime + ", bookingDate="
-				+ bookingDate + ", bookingStatus=" + bookingStatus + ", paymentStatus=" + paymentStatus + "]";
+	public boolean isOtpVerified() {
+		return otpVerified;
 	}
 
-    
+	public void setOtpVerified(boolean otpVerified) {
+		this.otpVerified = otpVerified;
+	}
+
+	public LocalDateTime getOtpGeneratedAt() {
+		return otpGeneratedAt;
+	}
+
+	public void setOtpGeneratedAt(LocalDateTime otpGeneratedAt) {
+		this.otpGeneratedAt = otpGeneratedAt;
+	}
+
+	
 }

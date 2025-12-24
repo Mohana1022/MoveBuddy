@@ -27,28 +27,24 @@ public class DriverController {
     @Autowired
     private DriverService ds;
 
-    // ---------------- SAVE DRIVER ----------------
     @PostMapping("/savedriver")
     public ResponseEntity<ResponseStructure<Driver>> saveDriver(
             @RequestBody RegisterDriverVehicleDTO driverDTO) {
         return ds.saveDriverDTO(driverDTO);
     }
 
-    // ---------------- FIND DRIVER ----------------
     @GetMapping("/finddriver/{mobileno}")
     public ResponseEntity<ResponseStructure<Driver>> findDriver(
             @PathVariable long mobileno) {
         return ds.findDriverByMobile(mobileno);
     }
 
-    // ---------------- DELETE DRIVER ----------------
     @DeleteMapping("/deletedriver/{mobileNo}")
     public ResponseEntity<ResponseStructure<String>> deleteDriver(
             @PathVariable long mobileNo) {
         return ds.deleteDriver(mobileNo);
     }
 
-    // ---------------- UPDATE DRIVER LOCATION ----------------
     @PutMapping("/updatedrivervehicleloc")
     public ResponseEntity<ResponseStructure<String>> updateLocation(
             @RequestParam long mobileNo,
@@ -57,7 +53,6 @@ public class DriverController {
         return ds.updateDriverLocation(mobileNo, latitude, longitude);
     }
 
-    // ---------------- COMPLETE RIDE ----------------
     @PutMapping("/completeride")
     public ResponseEntity<ResponseStructure<RideCompletionDTO>> completeRide(
             @RequestParam int bookingId,
@@ -65,14 +60,12 @@ public class DriverController {
         return ds.completeRide(bookingId, paymentType);
     }
 
-    // ---------------- BOOKING HISTORY ----------------
     @GetMapping("/seeAllbookinghistory")
     public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(
             @RequestParam long mobileNo) {
         return ds.seeAllBookingHistory(mobileNo);
     }
 
-    // ---------------- DRIVER CANCELLATION (UPDATED) ----------------
     @PutMapping("/drivercancellation")
     public ResponseEntity<ResponseStructure<String>> cancelBooking(
             @RequestParam int driverId,
@@ -87,5 +80,13 @@ public class DriverController {
         rs.setData("CANCELLED");
 
         return ResponseEntity.ok(rs);
+    }
+
+    // ---------------- VALIDATE OTP ----------------
+    @PostMapping("/driver/validate-otp")
+    public ResponseEntity<ResponseStructure<String>> validateOtp(
+            @RequestParam int bookingId,
+            @RequestParam String otp) {
+        return ds.validateRideOtp(bookingId, otp);
     }
 }

@@ -22,7 +22,7 @@ import jakarta.persistence.OneToOne;
 public class Driver {
 
 	@Id
-	@GeneratedValue (strategy = GenerationType.AUTO)
+	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	private int id;
 	private long licenseNo;
 	private String upiid;
