@@ -295,9 +295,8 @@ public class CustomerService {
         return rs;
     }
 
-    /* =====================================================
-       LOCATION VALIDATION CORE
-       ===================================================== */
+    
+//       LOCATION VALIDATION CORE
 
     private Map<String, Double> getCoordinatesSafe(String place) {
 
@@ -329,9 +328,7 @@ public class CustomerService {
         return Map.of("lat", lat, "lon", lon);
     }
 
-    /* =====================================================
-       DISTANCE CALCULATION
-       ===================================================== */
+//       DISTANCE CALCULATION
 
     private Map<String, Object> getDistanceSafe(
             double slat, double slon, double dlat, double dlon) {
@@ -436,9 +433,8 @@ public class CustomerService {
     }
 
 
-    /* =====================================================
-       CUSTOMER CANCELLATION
-       ===================================================== */
+//       CUSTOMER CANCELLATION
+
 
     @Transactional
     public ResponseStructure<Customer> customerCancellation(

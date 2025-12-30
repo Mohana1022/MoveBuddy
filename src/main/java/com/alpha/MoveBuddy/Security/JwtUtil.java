@@ -13,16 +13,15 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtUtil {
 
-    // ✅ Use a secure key of at least 32 characters
+    // Use secure key (at least 32 characters)
     private static final String SECRET = "myverylongandsecuresecretkeyforjwt123456!";
 
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
 
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    // ================================
     // Generate JWT token
-    // ================================
+    
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -32,9 +31,9 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ================================
+   
     // Extract username (mobileNo)
-    // ================================
+    
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -43,10 +42,9 @@ public class JwtUtil {
                 .getBody()
                 .getSubject();
     }
-
-    // ================================
+    
     // Validate token
-    // ================================
+    
     public boolean validateToken(String token, String username) {
         String extractedUsername = extractUsername(token);
         return (extractedUsername.equals(username) && !isTokenExpired(token));

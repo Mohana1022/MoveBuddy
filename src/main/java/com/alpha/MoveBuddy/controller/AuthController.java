@@ -52,9 +52,9 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
- // =====================================================
+    
     // CUSTOMER REGISTRATION
-    // =====================================================
+    
     @PostMapping("/register/customer")
     public ResponseEntity<ResponseStructure<String>> registerCustomer(
             @RequestBody RegisterCustomerDTO dto) {
@@ -91,9 +91,9 @@ public class AuthController {
         return ResponseEntity.ok(rs);
     }
 
-    // =====================================================
+    
     // DRIVER REGISTRATION
-    // =====================================================
+    
     @PostMapping("/register/driver")
     public ResponseEntity<ResponseStructure<String>> registerDriver(
             @RequestBody RegisterDriverVehicleDTO dto) {
