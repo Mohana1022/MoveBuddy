@@ -11,6 +11,7 @@ public class RegisterCustomerDTO {
 	private String latitude;
 	private String longitude;
 	private String password;
+	
 	public String getName() {
 		return name;
 	}

@@ -81,7 +81,7 @@ public class CustomerService {
         return rs;
     }
 
-    private String getCityFromCoordinates(String lat, String lon) {
+    public String getCityFromCoordinates(String lat, String lon) {
         try {
             String url = "https://us1.locationiq.com/v1/reverse?key=" + apiKey +
                          "&lat=" + lat + "&lon=" + lon + "&format=json";
