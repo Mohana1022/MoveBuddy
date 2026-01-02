@@ -12,6 +12,7 @@ import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.service.CustomerService;
 
 @RestController
+@RequestMapping("/customer")
 public class CustomerController {
 
     @Autowired

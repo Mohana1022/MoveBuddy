@@ -37,8 +37,8 @@ public class SecurityConfig {
         // Authorization rules
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()    // registration & login public
-                .requestMatchers("/driver/**").hasAuthority("DRIVER")
-                .requestMatchers("/customer/**").hasAuthority("CUSTOMER")
+                .requestMatchers("/customer/**").hasAuthority("ROLE_CUSTOMER")
+                .requestMatchers("/driver/**").hasAuthority("ROLE_DRIVER")
                 .anyRequest().authenticated()
         );
 

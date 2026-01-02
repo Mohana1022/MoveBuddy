@@ -69,7 +69,7 @@ public class AuthController {
         Users user = new Users();
         user.setUsermobileNo(mobileNo);
         user.setUserPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole("CUSTOMER");
+        user.setRole("ROLE_CUSTOMER");
         usersRepository.save(user);
 
         Customer customer = new Customer();
@@ -108,7 +108,7 @@ public class AuthController {
         Users users = new Users();
         users.setUsermobileNo(mobileNo);
         users.setUserPassword(passwordEncoder.encode(dto.getPassword()));
-        users.setRole("DRIVER");
+        users.setRole("ROLE_DRIVER");
         usersRepository.save(users);
 
         Driver driver = new Driver();
@@ -149,8 +149,7 @@ public class AuthController {
 //    LOGIN 
     
     @PostMapping("/login")
-    public ResponseEntity<ResponseStructure<String>> login(
-            @RequestBody LoginRequestDTO dto) {
+    public ResponseEntity<ResponseStructure<String>> login(@RequestBody LoginRequestDTO dto) {
 
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
