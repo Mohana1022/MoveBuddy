@@ -222,7 +222,7 @@ public class CustomerService {
         available.setC(customer);
 
         structure.setMessage("Available vehicles fetched successfully");
-        structure.setStatuscode(HttpStatus.FOUND.value());
+        structure.setStatuscode(HttpStatus.OK.value());
         structure.setData(available);
 
         return structure;
@@ -391,43 +391,45 @@ public class CustomerService {
         Customer customer = customerRepo.findByMobileNo(mobileNo)
                 .orElseThrow(CustomerNotFoundException::new);
 
-        // 2. Fetch bookings of the customer
-        List<Booking> bookings = bookingRepo.findByCustomerMobileNo(mobileNo);
+        // 2. Fetch all bookings of the customer
+        List<Booking> allBookings = bookingRepo.findByCustomerMobileNo(mobileNo);
 
-        // 3. Filter only completed bookings
-        List<Booking> completedBookings = bookings.stream()
-                .filter(b -> "COMPLETED".equalsIgnoreCase(b.getBookingStatus()))
-                .toList();
-
-        // 4. If no completed bookings exist, throw exception
-        if (completedBookings.isEmpty()) {
+        if (allBookings.isEmpty()) {
             throw new NoCurrentBookingException();
         }
 
-        // 5. Build history DTO
-        List<RideDetailsDTO> history = new ArrayList<>();
-        double totalAmount = 0;
+        List<RideDetailsDTO> historyList = new ArrayList<>();
+        double totalEarnings = 0;
 
-        for (Booking b : completedBookings) {
-            RideDetailsDTO dto = new RideDetailsDTO();
-            dto.setFromLoc(b.getSourceLoc());
-            dto.setToLoc(b.getDestinationLoc());
-            dto.setDistance(b.getDistanceTravelled());
-            dto.setFare(b.getFare());
-
-            history.add(dto);
-            totalAmount += b.getFare();
+        for (Booking b : allBookings) {
+            RideDetailsDTO rideDto = new RideDetailsDTO();
+            rideDto.setId(b.getId());
+            rideDto.setFromLoc(b.getSourceLoc());
+            rideDto.setToLoc(b.getDestinationLoc());
+            rideDto.setDistance(b.getDistanceTravelled());
+            rideDto.setFare(b.getFare());
+            rideDto.setStatus(b.getBookingStatus());
+            rideDto.setBookingDate(b.getBookingDate());
+            if (b.getVehicle() != null && b.getVehicle().getDriver() != null) {
+                rideDto.setDriverName(b.getVehicle().getDriver().getName());
+            }
+            if (b.getCustomer() != null) {
+                rideDto.setCustomerName(b.getCustomer().getName());
+            }
+            historyList.add(rideDto);
+            if ("COMPLETED".equalsIgnoreCase(b.getBookingStatus())) {
+                totalEarnings += b.getFare();
+            }
         }
 
-        BookingHistoryDto bookingHistoryDto = new BookingHistoryDto();
-        bookingHistoryDto.setHistory(history);
-        bookingHistoryDto.setTotalAmount(totalAmount);
+        BookingHistoryDto responseDto = new BookingHistoryDto();
+        responseDto.setHistory(historyList);
+        responseDto.setTotalAmount(totalEarnings);
 
-        // 6. Wrap in ResponseStructure
         ResponseStructure<BookingHistoryDto> response = new ResponseStructure<>();
         response.setStatuscode(HttpStatus.OK.value());
         response.setMessage("Customer booking history fetched successfully");
-        response.setData(bookingHistoryDto);
+        response.setData(responseDto);
 
         return ResponseEntity.ok(response);
     }

@@ -18,11 +18,11 @@ public class Users {
     private String role;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "driver_id")   //  explicit FK column
+    @JoinColumn(name = "driver_id")
     private Driver driver;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "customer_id") // explicit FK column
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
 	public int getUserId() {

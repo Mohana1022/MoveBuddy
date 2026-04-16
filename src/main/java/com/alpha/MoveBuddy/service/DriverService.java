@@ -3,16 +3,15 @@ package com.alpha.MoveBuddy.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.alpha.MoveBuddy.DTO.BookingHistoryDto;
-import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
 import com.alpha.MoveBuddy.DTO.RideCompletionDTO;
 import com.alpha.MoveBuddy.DTO.RideDetailsDTO;
 import com.alpha.MoveBuddy.Repository.BookingRepository;
@@ -25,9 +24,10 @@ import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Customer;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.entity.Payment;
-import com.alpha.MoveBuddy.entity.Users;
 import com.alpha.MoveBuddy.entity.Vehicle;
 import com.alpha.MoveBuddy.exception.DriverNotFoundException;
+
+import java.util.Map;
 
 @Service
 public class DriverService {
@@ -50,9 +50,8 @@ public class DriverService {
     @Value("${locationiq.api.key}")
     private String apiKey;
 
-    // ---------------- GET CITY NAME ----------------
+    // ---- GET CITY NAME FROM COORDINATES ----
     public String getCityName(String lat, String lon) {
-
         String url = "https://us1.locationiq.com/v1/reverse?key=" + apiKey +
                 "&lat=" + lat + "&lon=" + lon + "&format=json";
 
@@ -66,53 +65,8 @@ public class DriverService {
         return "Unknown";
     }
 
-    // ---------------- SAVE DRIVER ----------------
-    public ResponseEntity<ResponseStructure<Driver>> saveDriverDTO(RegisterDriverVehicleDTO dto) {
-
-        Driver d = new Driver();
-        d.setLicenseNo(dto.getLicenseNo());
-        d.setUpiid(dto.getUpiID());
-        d.setName(dto.getDriverName());
-        d.setAge(dto.getAge());
-        d.setMobileno(dto.getMobileNo());
-        d.setGender(dto.getGender());
-        d.setMailid(dto.getMailId());
-
-        Vehicle v = new Vehicle();
-        v.setName(dto.getVehicleName());
-        v.setVehicleNo(dto.getVehicleNo());
-        v.setType(dto.getVehicleType());
-        v.setModel(dto.getModel());
-        v.setCapacity(dto.getVehicleCapacity());
-        v.setPricePerKM(dto.getPricePerKM());
-        v.setAvgSpeed(dto.getAverageSpeed());
-        v.setCurrentCity(getCityName(dto.getLatitude(), dto.getLongitude()));
-        
-        
-        // CREATE USER
-        
-        Users users = new Users();
-        users.setRole("Driver");
-        users.setUsermobileNo(dto.getMobileNo());
-        users.setUserPassword(dto.getPassword());
-
-        v.setDriver(d);
-        d.setVehicle(v);
-        d.setUsers(users);
-
-        Driver savedDriver = dr.save(d);
-
-        ResponseStructure<Driver> rs = new ResponseStructure<>();
-        rs.setStatuscode(200);
-        rs.setMessage("Driver saved successfully");
-        rs.setData(savedDriver);
-
-        return ResponseEntity.ok(rs);
-    }
-
-    // ---------------- FIND DRIVER ----------------
+    // ---- FIND DRIVER ----
     public ResponseEntity<ResponseStructure<Driver>> findDriverByMobile(long mobileNo) {
-
         Driver driver = dr.findByMobileno(mobileNo)
                 .orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
 
@@ -124,13 +78,74 @@ public class DriverService {
         return ResponseEntity.ok(rs);
     }
 
-    // ---------------- COMPLETE RIDE ----------------
-    public ResponseEntity<ResponseStructure<RideCompletionDTO>> completeRide(int bookingId, String paymentType) {
+    // ---- TOGGLE AVAILABILITY ----
+    public ResponseEntity<ResponseStructure<String>> toggleAvailability(long mobileNo) {
+        Driver driver = dr.findByMobileno(mobileNo)
+                .orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
 
+        String currentStatus = driver.getStatus();
+        String newStatus = "Available".equalsIgnoreCase(currentStatus) ? "Offline" : "Available";
+
+        driver.setStatus(newStatus);
+        dr.save(driver);
+
+        // Also update the vehicle availability
+        if (driver.getVehicle() != null) {
+            driver.getVehicle().setAvailableStatus(newStatus);
+            vr.save(driver.getVehicle());
+        }
+
+        ResponseStructure<String> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("Availability toggled");
+        rs.setData("Status changed to: " + newStatus);
+
+        return ResponseEntity.ok(rs);
+    }
+
+    // ---- GET INCOMING RIDES (PENDING) ----
+    public ResponseEntity<ResponseStructure<List<Booking>>> getIncomingRides(long mobileNo) {
+        Driver driver = dr.findByMobileno(mobileNo)
+                .orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
+
+        if (driver.getVehicle() == null) {
+            throw new RuntimeException("Vehicle not associated with driver");
+        }
+
+        String driverCity = driver.getVehicle().getCurrentCity();
+
+        // Find all PENDING bookings in the driver's city
+        List<Booking> allBookings = br.findAll();
+        List<Booking> incomingRides = allBookings.stream()
+                .filter(b -> {
+                    if (b.getVehicle() == null) return false;
+                    
+                    // Always show if it belongs to this driver
+                    if (b.getVehicle().getDriver() != null && 
+                        b.getVehicle().getDriver().getMobileno().equals(mobileNo)) {
+                        return !"COMPLETED".equalsIgnoreCase(b.getBookingStatus());
+                    }
+                    
+                    // Otherwise show open rides in the same city
+                    return ("PENDING".equalsIgnoreCase(b.getBookingStatus()) || 
+                            "booked".equalsIgnoreCase(b.getBookingStatus())) &&
+                           driverCity.equalsIgnoreCase(b.getVehicle().getCurrentCity());
+                })
+                .toList();
+
+        ResponseStructure<List<Booking>> rs = new ResponseStructure<>();
+        rs.setStatuscode(200);
+        rs.setMessage("Incoming rides fetched for city: " + driverCity);
+        rs.setData(incomingRides);
+
+        return ResponseEntity.ok(rs);
+    }
+
+    // ---- COMPLETE RIDE ----
+    public ResponseEntity<ResponseStructure<RideCompletionDTO>> completeRide(int bookingId, String paymentType) {
         Booking booking = br.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        // OTP must be verified before completing the ride
         if (!booking.isOtpVerified()) {
             throw new RuntimeException("OTP not verified. Cannot complete ride.");
         }
@@ -142,7 +157,7 @@ public class DriverService {
         customer.setBookingflag(false);
 
         Vehicle vehicle = booking.getVehicle();
-        vehicle.setAvailableStatus("AVAILABLE");
+        vehicle.setAvailableStatus("Available");
 
         Payment payment = new Payment();
         payment.setBooking(booking);
@@ -170,9 +185,8 @@ public class DriverService {
         return ResponseEntity.ok(rs);
     }
 
-    // ---------------- BOOKING HISTORY ----------------
+    // ---- BOOKING HISTORY ----
     public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(long mobileNo) {
-
         Driver driver = dr.findByMobileno(mobileNo)
                 .orElseThrow(() -> new DriverNotFoundException("Driver Not Found"));
 
@@ -181,13 +195,22 @@ public class DriverService {
 
         for (Booking b : driver.getBookings()) {
             RideDetailsDTO dto = new RideDetailsDTO();
+            dto.setId(b.getId());
             dto.setFromLoc(b.getSourceLoc());
             dto.setToLoc(b.getDestinationLoc());
             dto.setDistance(b.getDistanceTravelled());
             dto.setFare(b.getFare());
-
-            totalAmount += b.getFare();
+            dto.setStatus(b.getBookingStatus());
+            dto.setBookingDate(b.getBookingDate());
+            dto.setDriverName(driver.getName());
+            if (b.getCustomer() != null) {
+                dto.setCustomerName(b.getCustomer().getName());
+            }
+            
             rideDetails.add(dto);
+            if ("COMPLETED".equalsIgnoreCase(b.getBookingStatus())) {
+                totalAmount += b.getFare();
+            }
         }
 
         BookingHistoryDto history = new BookingHistoryDto();
@@ -202,9 +225,8 @@ public class DriverService {
         return ResponseEntity.ok(rs);
     }
 
-    // ---------------- CANCELLATION BY DRIVER ----------------
+    // ---- DRIVER CANCELLATION ----
     public void cancelBooking(int driverId, LocalDate bookingDate) {
-
         Driver driver = dr.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
 
@@ -215,12 +237,9 @@ public class DriverService {
             throw new RuntimeException("Booking already canceled");
         }
 
-        int cancellationCount = 0;
-        for (Booking b : br.findByVehicle_Id(driverId)) {
-            if ("canceled by driver".equalsIgnoreCase(b.getBookingStatus())) {
-                cancellationCount++;
-            }
-        }
+        long cancellationCount = br.findByVehicle_Id(driverId).stream()
+                .filter(b -> "canceled by driver".equalsIgnoreCase(b.getBookingStatus()))
+                .count();
 
         booking.setBookingStatus("canceled by driver");
         br.save(booking);
@@ -231,30 +250,29 @@ public class DriverService {
         }
     }
 
+    // ---- DELETE DRIVER ----
     public ResponseEntity<ResponseStructure<String>> deleteDriver(long mobileNo) {
         ResponseStructure<String> rs = new ResponseStructure<>();
-
         Driver driver = dr.findByMobileno(mobileNo).orElse(null);
 
         if (driver != null) {
             dr.delete(driver);
-
             rs.setStatuscode(200);
             rs.setMessage("Driver deleted successfully");
             rs.setData("Deleted");
-
             return ResponseEntity.ok(rs);
         }
 
         rs.setStatuscode(404);
         rs.setMessage("Driver not found");
         rs.setData("Not Found");
-
         return ResponseEntity.status(404).body(rs);
     }
 
-    public ResponseEntity<ResponseStructure<String>> updateDriverLocation(long mobileNo, String latitude,
-            String longitude) {
+    // ---- UPDATE DRIVER LOCATION ----
+    public ResponseEntity<ResponseStructure<String>> updateDriverLocation(
+            long mobileNo, String latitude, String longitude) {
+
         Driver driver = dr.findByMobileno(mobileNo)
                 .orElseThrow(() -> new DriverNotFoundException("Driver Not found"));
 
@@ -263,7 +281,6 @@ public class DriverService {
         if (driver.getVehicle() != null) {
             Vehicle v = driver.getVehicle();
             v.setCurrentCity(city);
-
             vr.save(v);
         }
 
@@ -275,21 +292,22 @@ public class DriverService {
         return ResponseEntity.ok(rs);
     }
 
-    // ---------------- OTP VALIDATION ----------------
+    // ---- OTP VALIDATION ----
     public ResponseEntity<ResponseStructure<String>> validateRideOtp(int bookingId, String enteredOtp) {
         Booking booking = br.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         if (!booking.getRideOtp().equals(enteredOtp)) {
-            throw new RuntimeException("Invalid OTP. Ride cannot be completed.");
+            throw new RuntimeException("Invalid OTP. Ride cannot be started.");
         }
 
         booking.setOtpVerified(true);
+        booking.setBookingStatus("IN_PROGRESS");
         br.save(booking);
 
         ResponseStructure<String> rs = new ResponseStructure<>();
         rs.setStatuscode(200);
-        rs.setMessage("OTP verified successfully. Driver can complete the ride.");
+        rs.setMessage("OTP verified. Ride is now in progress.");
         rs.setData("OTP VERIFIED");
 
         return ResponseEntity.ok(rs);

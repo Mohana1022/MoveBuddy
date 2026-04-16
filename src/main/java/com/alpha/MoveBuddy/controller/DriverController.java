@@ -4,48 +4,44 @@ import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.alpha.MoveBuddy.DTO.BookingHistoryDto;
 import com.alpha.MoveBuddy.DTO.RegisterDriverVehicleDTO;
 import com.alpha.MoveBuddy.DTO.RideCompletionDTO;
 import com.alpha.MoveBuddy.ResponseStructure;
+import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.service.DriverService;
 
+import java.util.List;
+
 @RestController
+@RequestMapping("/driver")
 public class DriverController {
 
     @Autowired
     private DriverService ds;
 
-    @PostMapping("/savedriver")
-    public ResponseEntity<ResponseStructure<Driver>> saveDriver(
-            @RequestBody RegisterDriverVehicleDTO driverDTO) {
-        return ds.saveDriverDTO(driverDTO);
+    /** GET /driver/profile/{mobileNo} - Get driver profile */
+    @GetMapping("/profile/{mobileNo}")
+    public ResponseEntity<ResponseStructure<Driver>> findDriver(@PathVariable long mobileNo) {
+        return ds.findDriverByMobile(mobileNo);
     }
 
-    @GetMapping("/finddriver/{mobileno}")
-    public ResponseEntity<ResponseStructure<Driver>> findDriver(
-            @PathVariable long mobileno) {
-        return ds.findDriverByMobile(mobileno);
-    }
-
-    @DeleteMapping("/deletedriver/{mobileNo}")
-    public ResponseEntity<ResponseStructure<String>> deleteDriver(
-            @PathVariable long mobileNo) {
+    /** DELETE /driver/delete/{mobileNo} - Delete a driver */
+    @DeleteMapping("/delete/{mobileNo}")
+    public ResponseEntity<ResponseStructure<String>> deleteDriver(@PathVariable long mobileNo) {
         return ds.deleteDriver(mobileNo);
     }
 
-    @PutMapping("/updatedrivervehicleloc")
+    /**
+     * PUT /driver/update-location
+     * Update the driver's current city by passing GPS coordinates.
+     */
+    @PutMapping("/update-location")
     public ResponseEntity<ResponseStructure<String>> updateLocation(
             @RequestParam long mobileNo,
             @RequestParam String latitude,
@@ -53,24 +49,50 @@ public class DriverController {
         return ds.updateDriverLocation(mobileNo, latitude, longitude);
     }
 
-    @PutMapping("/completeride")
+    /**
+     * PUT /driver/toggle-availability/{mobileNo}
+     * Toggles driver between "Available" and "Offline".
+     */
+    @PutMapping("/toggle-availability/{mobileNo}")
+    public ResponseEntity<ResponseStructure<String>> toggleAvailability(@PathVariable long mobileNo) {
+        return ds.toggleAvailability(mobileNo);
+    }
+
+    /**
+     * GET /driver/incoming-rides/{mobileNo}
+     * Returns all PENDING rides in the driver's city.
+     */
+    @GetMapping("/incoming-rides/{mobileNo}")
+    public ResponseEntity<ResponseStructure<List<Booking>>> getIncomingRides(@PathVariable long mobileNo) {
+        return ds.getIncomingRides(mobileNo);
+    }
+
+    /**
+     * PUT /driver/complete-ride
+     * Marks a ride as COMPLETED after OTP verification.
+     */
+    @PutMapping("/complete-ride")
     public ResponseEntity<ResponseStructure<RideCompletionDTO>> completeRide(
             @RequestParam int bookingId,
             @RequestParam String paymentType) {
         return ds.completeRide(bookingId, paymentType);
     }
 
-    @GetMapping("/seeAllbookinghistory")
+    /** GET /driver/booking-history/{mobileNo} - Booking history for driver */
+    @GetMapping("/booking-history/{mobileNo}")
     public ResponseEntity<ResponseStructure<BookingHistoryDto>> seeAllBookingHistory(
-            @RequestParam long mobileNo) {
+            @PathVariable long mobileNo) {
         return ds.seeAllBookingHistory(mobileNo);
     }
 
-    @PutMapping("/drivercancellation")
+    /**
+     * PUT /driver/cancel-ride
+     * Driver cancels the booking on a specific date.
+     */
+    @PutMapping("/cancel-ride")
     public ResponseEntity<ResponseStructure<String>> cancelBooking(
             @RequestParam int driverId,
-            @RequestParam
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bookingDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bookingDate) {
 
         ds.cancelBooking(driverId, bookingDate);
 
@@ -82,8 +104,11 @@ public class DriverController {
         return ResponseEntity.ok(rs);
     }
 
-    // ---------------- VALIDATE OTP ----------------
-    @PostMapping("/driver/validate-otp")
+    /**
+     * POST /driver/validate-otp
+     * Driver validates the OTP provided by the customer to start the ride.
+     */
+    @PostMapping("/validate-otp")
     public ResponseEntity<ResponseStructure<String>> validateOtp(
             @RequestParam int bookingId,
             @RequestParam String otp) {

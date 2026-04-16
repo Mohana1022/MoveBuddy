@@ -36,7 +36,7 @@ public class Driver {
 
 	
 	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL,fetch=FetchType.EAGER)
-	@JsonIgnore
+	@com.fasterxml.jackson.annotation.JsonIgnoreProperties("driver")
 	private Vehicle vehicle;
 	
 

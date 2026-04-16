@@ -18,7 +18,7 @@ import jakarta.persistence.PrePersist;
 public class Booking {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @ManyToOne
@@ -26,7 +26,7 @@ public class Booking {
     private Customer customer;
 
     @ManyToOne
-    @JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties("driver")
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
    

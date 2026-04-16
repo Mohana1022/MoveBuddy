@@ -6,11 +6,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -31,23 +37,54 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // Disable CSRF
-        http.csrf(csrf -> csrf.disable());
+        http
+            // Disable CSRF (stateless REST API)
+            .csrf(AbstractHttpConfigurer::disable)
 
-        // Authorization rules
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()    // registration & login public
-                .requestMatchers("/customer/**").hasAuthority("ROLE_CUSTOMER")
-                .requestMatchers("/driver/**").hasAuthority("ROLE_DRIVER")
+            // Enable CORS from our AppConfig
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // Authorization rules
+            .authorizeHttpRequests(auth -> auth
+                // Public: registration & login
+                .requestMatchers("/auth/**").permitAll()
+                // Customer-only endpoints
+                .requestMatchers("/customer/**").hasAuthority("CUSTOMER")
+                // Driver-only endpoints
+                .requestMatchers("/driver/**").hasAuthority("DRIVER")
+                // Booking endpoints – accessible by both CUSTOMER and DRIVER
+                .requestMatchers("/booking/**").hasAnyAuthority("CUSTOMER", "DRIVER")
+                // Admin-only endpoints
+                .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                // Everything else requires auth
                 .anyRequest().authenticated()
-        );
+            )
 
-        // Stateless session (REST API)
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            // Stateless session (JWT)
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
 
-        // ✅ Add JWT filter
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            // Register JWT filter before UsernamePasswordAuthenticationFilter
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * CORS configuration bean – must be consistent with AppConfig.addCorsMappings()
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

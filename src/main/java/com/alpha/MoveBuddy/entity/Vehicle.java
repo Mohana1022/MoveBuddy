@@ -15,6 +15,7 @@ import jakarta.persistence.OneToOne;
 public class Vehicle {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String name;
 	private String vehicleNo;

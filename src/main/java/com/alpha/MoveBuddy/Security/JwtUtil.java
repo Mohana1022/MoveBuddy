@@ -2,8 +2,10 @@ package com.alpha.MoveBuddy.Security;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -13,50 +15,54 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtUtil {
 
-    // Use secure key (at least 32 characters)
-    private static final String SECRET = "myverylongandsecuresecretkeyforjwt123456!";
+    @Value("${jwt.secret:myverylongandsecuresecretkeyforjwt123456!}")
+    private String secret;
 
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
+    @Value("${jwt.expiration.ms:36000000}")
+    private long expirationMs;
 
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private SecretKey getKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
-    // Generate JWT token
-    
-    public String generateToken(String username) {
+    /**
+     * Generate a JWT token embedding username (mobile number) and the user's role.
+     */
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-   
-    // Extract username (mobileNo)
-    
+    /** Extract username (mobile number) from token. */
     public String extractUsername(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        return getClaims(token).getSubject();
     }
-    
-    // Validate token
-    
+
+    /** Extract role from token claims. */
+    public String extractRole(String token) {
+        return (String) getClaims(token).get("role");
+    }
+
+    /** Validate token against provided username. */
     public boolean validateToken(String token, String username) {
         String extractedUsername = extractUsername(token);
         return (extractedUsername.equals(username) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parserBuilder()
-                .setSigningKey(key)
+        return getClaims(token).getExpiration().before(new Date());
+    }
+
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-        return expiration.before(new Date());
+                .getBody();
     }
 }
