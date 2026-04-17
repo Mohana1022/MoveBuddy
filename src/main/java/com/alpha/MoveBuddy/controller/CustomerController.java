@@ -59,5 +59,10 @@ public class CustomerController {
     public ResponseStructure<Customer> customerCancellation(int bookingid, int customerid) {
     	return customerservice.customerCancellation(bookingid, customerid);
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResponseStructure<Customer>> updateCustomer(@RequestBody Customer updated) {
+        return ResponseEntity.ok(customerservice.updateCustomer(updated));
+    }
 }
 

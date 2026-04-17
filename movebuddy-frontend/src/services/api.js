@@ -62,6 +62,7 @@ export const customerAPI = {
     api.post(`/customer/rating/submit?customerMobile=${customerMobile}`, data),
   getDriverRating: (driverId) =>
     api.get(`/customer/rating/driver/${driverId}`),
+  updateProfile: (data) => api.put('/customer/update', data),
 };
 
 // ============================
@@ -95,6 +96,7 @@ export const driverAPI = {
     api.get(`/driver/booking-history/${mobileNo}`),
   updateLocation: (mobileNo, latitude, longitude) =>
     api.put(`/driver/update-location?mobileNo=${mobileNo}&latitude=${latitude}&longitude=${longitude}`),
+  updateProfile: (data) => api.put('/driver/update', data),
 };
 
 // ============================

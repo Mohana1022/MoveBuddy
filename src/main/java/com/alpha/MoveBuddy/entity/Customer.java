@@ -35,7 +35,7 @@ public class Customer {
 	private boolean bookingflag = false;
 	
 	@OneToMany(mappedBy = "customer")
-	@JsonIgnore
+	@com.fasterxml.jackson.annotation.JsonIgnoreProperties("customer")
 	private List<Booking> bookinglist = new ArrayList<>();
 
 	@OneToOne

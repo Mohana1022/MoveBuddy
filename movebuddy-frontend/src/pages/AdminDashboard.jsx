@@ -127,7 +127,7 @@ const AdminDashboard = () => {
               <tbody>
                 {drivers.map(d => (
                   <tr key={d.id}>
-                    <td>{d.driverName}</td>
+                    <td>{d.name}</td>
                     <td>{d.vehicle?.vehicleName} ({d.vehicle?.vehicleNo})</td>
                     <td>{d.mobileno}</td>
                     <td>

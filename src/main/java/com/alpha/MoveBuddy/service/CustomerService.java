@@ -457,8 +457,24 @@ public class CustomerService {
         ResponseStructure<Customer> rs = new ResponseStructure<>();
         rs.setStatuscode(HttpStatus.OK.value());
         rs.setMessage("Booking cancelled successfully");
-        rs.setData(customer);
+        return rs;
+    }
 
+    public ResponseStructure<Customer> updateCustomer(Customer updated) {
+        Customer existing = customerRepo.findByMobileNo(updated.getMobileNo())
+                .orElseThrow(CustomerNotFoundException::new);
+
+        existing.setName(updated.getName());
+        existing.setEmailId(updated.getEmailId());
+        existing.setAge(updated.getAge());
+        existing.setGender(updated.getGender());
+
+        Customer saved = customerRepo.save(existing);
+
+        ResponseStructure<Customer> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.OK.value());
+        rs.setMessage("Profile updated");
+        rs.setData(saved);
         return rs;
     }
 }

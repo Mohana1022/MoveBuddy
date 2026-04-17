@@ -114,4 +114,9 @@ public class DriverController {
             @RequestParam String otp) {
         return ds.validateRideOtp(bookingId, otp);
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResponseStructure<Driver>> updateDriver(@RequestBody Driver updated) {
+        return ResponseEntity.ok(ds.updateDriver(updated));
+    }
 }

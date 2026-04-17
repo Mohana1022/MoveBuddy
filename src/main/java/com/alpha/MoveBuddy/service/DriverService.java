@@ -312,4 +312,22 @@ public class DriverService {
 
         return ResponseEntity.ok(rs);
     }
+
+    public ResponseStructure<Driver> updateDriver(Driver updated) {
+        Driver existing = dr.findByMobileno(updated.getMobileno())
+                .orElseThrow(() -> new DriverNotFoundException("Driver not found"));
+
+        existing.setName(updated.getName());
+        existing.setMailid(updated.getMailid());
+        existing.setAge(updated.getAge());
+        existing.setGender(updated.getGender());
+
+        Driver saved = dr.save(existing);
+
+        ResponseStructure<Driver> rs = new ResponseStructure<>();
+        rs.setStatuscode(HttpStatus.OK.value());
+        rs.setMessage("Profile updated");
+        rs.setData(saved);
+        return rs;
+    }
 }
