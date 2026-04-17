@@ -71,48 +71,48 @@ const BookRidePage = () => {
 
       {/* ── Header ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        className="page-header">
+        className="page-header" style={{ padding: 'clamp(2rem, 5vw, 4rem) 0 1.5rem' }}>
         <span className="section-label">Premium Rides</span>
-        <h1 className="page-title">Book a Ride</h1>
-        <p className="page-subtitle">Enter your destination to see available vehicles nearby.</p>
+        <h1 className="page-title" style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800 }}>Book a Ride</h1>
+        <p className="page-subtitle" style={{ fontSize: 'clamp(0.85rem, 1.2vw, 1rem)' }}>Enter your destination to see available vehicles nearby.</p>
       </motion.div>
 
       {/* ── Search Form ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
-        className="glass-card glass-card-cyan" style={{ padding: '28px 32px', marginBottom: 28 }}>
+        className="glass-card glass-card-cyan" style={{ padding: 'clamp(20px, 5vw, 32px)', marginBottom: 28 }}>
 
         {/* Route visualiser */}
         <div style={{ display: 'flex', alignItems: 'stretch', gap: 16, marginBottom: 24 }}>
-          {/* Left — icon column */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, paddingTop: 10 }}>
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--accent-cyan)', boxShadow: '0 0 10px var(--accent-cyan)', animation: 'pinPulse 2s infinite' }} />
+          {/* Left — icon column (hidden on very small screens if needed, but flex-shrink 0 keeps it) */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, paddingTop: 14, flexShrink: 0 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-cyan)', boxShadow: '0 0 10px var(--accent-cyan)', animation: 'pinPulse 2s infinite' }} />
             <div style={{ width: 1, flex: 1, background: 'linear-gradient(to bottom, rgba(0,212,255,0.4), rgba(124,58,237,0.4))', borderLeft: '1px dashed rgba(255,255,255,0.15)' }} />
-            <div style={{ width: 12, height: 12, borderRadius: '2px', background: 'var(--accent-rose)', boxShadow: '0 0 10px var(--accent-rose)' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '2px', background: 'var(--accent-rose)', boxShadow: '0 0 10px var(--accent-rose)' }} />
           </div>
 
           {/* Right — input column */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div style={{ position: 'relative' }}>
               <Navigation size={15} color="var(--accent-cyan)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
-              <input className="form-input" style={{ paddingLeft: 40, opacity: 0.6 }}
-                value="Your Current Location" readOnly />
+              <input className="form-input" style={{ paddingLeft: 40, opacity: 0.6, fontSize: '0.9rem' }}
+                value="Current Location" readOnly />
             </div>
 
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: 12 }}>
-              <div style={{ flex: 1, position: 'relative' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 240px', position: 'relative' }}>
                 <MapPin size={15} color="var(--accent-rose)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
-                <input id="destination-input" className="form-input" style={{ paddingLeft: 40 }}
+                <input id="destination-input" className="form-input" style={{ paddingLeft: 40, fontSize: '1rem' }}
                   type="text" placeholder="Where to?" value={destination}
                   onChange={e => setDestination(e.target.value)}
                   required disabled={loading || showVehicles} />
               </div>
               {showVehicles ? (
-                <button type="button" className="btn btn-secondary" style={{ whiteSpace: 'nowrap' }}
+                <button type="button" className="btn btn-secondary btn-sm-100" style={{ whiteSpace: 'nowrap', minHeight: '48px' }}
                   onClick={() => { setShowVehicles(false); setSelectedVehicle(null); setDestination(''); }}>
                   Change
                 </button>
               ) : (
-                <button type="submit" className="btn btn-primary" disabled={loading} style={{ whiteSpace: 'nowrap' }}>
+                <button type="submit" className="btn btn-primary btn-sm-100" disabled={loading} style={{ whiteSpace: 'nowrap', minHeight: '48px' }}>
                   {loading ? <div className="spinner spinner-sm" /> : <><Search size={15} /> Find Rides</>}
                 </button>
               )}
@@ -122,9 +122,11 @@ const BookRidePage = () => {
 
         {/* Distance badge */}
         {showVehicles && rideDist > 0 && (
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <span className="badge badge-info"><MapPin size={11} /> {rideDist.toFixed(1)} km</span>
-            <span className="badge badge-secondary"><ArrowRight size={11} /> {destination}</span>
+            <span className="badge badge-secondary" style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <ArrowRight size={11} /> {destination}
+            </span>
           </div>
         )}
       </motion.div>
@@ -147,22 +149,26 @@ const BookRidePage = () => {
                     onClick={() => setSelectedVehicle(v)}
                     style={{
                       cursor: 'pointer',
-                      padding: '20px 24px',
+                      padding: 'clamp(16px, 4vw, 24px)',
                       borderRadius: 'var(--radius-lg)',
                       background: isSelected ? 'rgba(0,212,255,0.06)' : 'var(--glass-bg)',
                       backdropFilter: 'blur(24px)',
                       border: isSelected ? '1px solid rgba(0,212,255,0.35)' : '1px solid var(--glass-border)',
                       boxShadow: isSelected ? 'var(--glass-glow-cyan)' : 'var(--glass-shadow)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      display: 'flex', 
+                      flexWrap: 'wrap',
+                      alignItems: 'center', 
+                      justifyContent: 'space-between',
+                      gap: 16,
                       transition: 'all 0.3s ease'
                     }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: 'min(100%, 200px)' }}>
                       {/* Vehicle emoji in glowing circle */}
                       <div style={{
-                        width: 56, height: 56, borderRadius: 'var(--radius-md)',
+                        width: 52, height: 52, borderRadius: 'var(--radius-md)',
                         background: isSelected ? 'rgba(0,212,255,0.1)' : 'rgba(255,255,255,0.04)',
                         border: `1px solid ${isSelected ? 'rgba(0,212,255,0.25)' : 'rgba(255,255,255,0.06)'}`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.6rem'
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', flexShrink: 0
                       }}>
                         {VEHICLE_EMOJI[v.v.type] || '🚗'}
                       </div>
@@ -170,20 +176,20 @@ const BookRidePage = () => {
                         <p style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: 3 }}>
                           {v.v.vehicleName || v.v.name}
                         </p>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                          {v.v.model} · {v.v.vehicleNo} · {v.v.type}
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                          {v.v.model} · {v.v.type}
                         </p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                           <Clock size={12} color="var(--text-muted)" />
-                          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'Rajdhani,sans-serif', fontWeight: 600 }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'Rajdhani,sans-serif', fontWeight: 600 }}>
                             {Math.round(v.estimatedTime)} min away
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
+                    <div style={{ textAlign: isSelected ? 'left' : 'right', flex: '1 1 auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: '100px' }}>
                       <p style={{
-                        fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: '1.5rem',
+                        fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
                         background: isSelected ? 'var(--gradient-text)' : 'none',
                         WebkitBackgroundClip: isSelected ? 'text' : 'unset',
                         WebkitTextFillColor: isSelected ? 'transparent' : 'var(--text-primary)',
@@ -192,12 +198,9 @@ const BookRidePage = () => {
                       }}>
                         ₹{Math.round(v.fare)}
                       </p>
-                      <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'Rajdhani,sans-serif', letterSpacing: '0.08em', marginTop: 4 }}>
-                        ESTIMATED FARE
+                      <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontFamily: 'Rajdhani,sans-serif', letterSpacing: '0.08em', marginTop: 4, textAlign: 'right' }}>
+                        EST. FARE
                       </p>
-                      {isSelected && (
-                        <span className="badge badge-primary" style={{ marginTop: 8 }}>✓ Selected</span>
-                      )}
                     </div>
                   </motion.div>
                 );

@@ -45,10 +45,10 @@ const RiderDashboard = () => {
     <div className="container" style={{ paddingBottom: 60 }}>
 
       {/* ── Header ── */}
-      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-header">
+      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-header" style={{ padding: 'clamp(2rem, 5vw, 4rem) 0 1.5rem' }}>
         <span className="section-label">{greeting} 👋</span>
-        <h1 className="page-title">{firstName}</h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <h1 className="page-title" style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800 }}>{firstName}</h1>
+        <p style={{ color: 'var(--text-secondary)', marginTop: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 'clamp(0.85rem, 1.2vw, 1rem)' }}>
           <MapPin size={14} color="var(--accent-cyan)" />
           {profile?.currentLoc || 'Detecting location...'}
         </p>
@@ -58,27 +58,36 @@ const RiderDashboard = () => {
       {activeRide && (
         <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={1}
           className="glass-card glass-card-cyan"
-          style={{ padding: '24px 28px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          style={{ 
+            padding: 'clamp(20px, 4vw, 28px)', 
+            marginBottom: 28, 
+            display: 'flex', 
+            flexWrap: 'wrap',
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            gap: 20 
+          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, minWidth: '240px' }}>
             <div style={{
               width: 48, height: 48, borderRadius: '50%',
               background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 0 16px rgba(0,212,255,0.2)',
-              animation: 'activePulse 2s ease-in-out infinite'
+              animation: 'activePulse 2s ease-in-out infinite',
+              flexShrink: 0
             }}>
               <Navigation size={20} color="var(--accent-cyan)" />
             </div>
             <div>
               <span className="badge badge-primary" style={{ marginBottom: 6 }}>Ride in Progress</span>
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+              <p style={{ fontSize: 'clamp(0.8rem, 1.1vw, 0.9rem)', color: 'var(--text-secondary)' }}>
                 <span style={{ color: 'var(--accent-emerald)' }}>●</span> {activeRide.sourceLoc}
                 &nbsp;→&nbsp;
                 <span style={{ color: 'var(--accent-rose)' }}>●</span> {activeRide.destinationLoc}
               </p>
             </div>
           </div>
-          <Link to={`/track-ride/${activeRide.id}`} className="btn btn-primary btn-sm" style={{ whiteSpace: 'nowrap' }}>
+          <Link to={`/track-ride/${activeRide.id}`} className="btn btn-primary btn-sm btn-sm-100" style={{ whiteSpace: 'nowrap' }}>
             Track Live <ChevronRight size={14} />
           </Link>
         </motion.div>
@@ -87,11 +96,10 @@ const RiderDashboard = () => {
       {/* ── Quick Actions ── */}
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={2} style={{ marginBottom: 28 }}>
         <span className="section-label" style={{ display: 'block', marginBottom: 16 }}>Quick Actions</span>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-
+        <div className="responsive-grid">
           <Link to="/book-ride" style={{ textDecoration: 'none' }}>
-            <motion.div whileHover={{ y: -4, scale: 1.01 }} className="glass-card"
-              style={{ padding: '28px 24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <motion.div whileHover={{ y: -4 }} className="glass-card"
+              style={{ padding: 'clamp(20px, 4vw, 28px) 24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
               <div style={{
                 width: 52, height: 52, borderRadius: 'var(--radius-md)',
                 background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)',
@@ -101,18 +109,18 @@ const RiderDashboard = () => {
                 <Navigation size={22} color="var(--accent-cyan)" />
               </div>
               <div>
-                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: 4 }}>Book a Ride</p>
+                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 'clamp(1rem, 1.2vw, 1.15rem)', color: 'var(--text-primary)', marginBottom: 4 }}>Book a Ride</p>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Find nearby drivers instantly</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-cyan)', fontSize: '0.8rem', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.05em' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-cyan)', fontSize: '0.8rem', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.05em', marginTop: 'auto' }}>
                 BOOK NOW <ChevronRight size={14} />
               </div>
             </motion.div>
           </Link>
 
           <Link to="/rider-history" style={{ textDecoration: 'none' }}>
-            <motion.div whileHover={{ y: -4, scale: 1.01 }} className="glass-card"
-              style={{ padding: '28px 24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <motion.div whileHover={{ y: -4 }} className="glass-card"
+              style={{ padding: 'clamp(20px, 4vw, 28px) 24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
               <div style={{
                 width: 52, height: 52, borderRadius: 'var(--radius-md)',
                 background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)',
@@ -122,10 +130,10 @@ const RiderDashboard = () => {
                 <History size={22} color="var(--accent-violet-lt)" />
               </div>
               <div>
-                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: 4 }}>Ride History</p>
+                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 'clamp(1rem, 1.2vw, 1.15rem)', color: 'var(--text-primary)', marginBottom: 4 }}>Ride History</p>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>View all your past trips</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-violet-lt)', fontSize: '0.8rem', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.05em' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-violet-lt)', fontSize: '0.8rem', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.05em', marginTop: 'auto' }}>
                 VIEW ALL <ChevronRight size={14} />
               </div>
             </motion.div>

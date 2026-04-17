@@ -81,34 +81,35 @@ const AdminDashboard = () => {
     <div className="container" style={{ paddingBottom: 60 }}>
 
       {/* ── Header ── */}
-      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="page-header" style={{ padding: 'clamp(2rem, 5vw, 4rem) 0 1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div style={{
             width: 44, height: 44, borderRadius: 'var(--radius-md)',
             background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0
           }}>
             <Shield size={20} color="var(--accent-cyan)" />
           </div>
           <div>
             <span className="section-label" style={{ marginBottom: 2 }}>System</span>
-            <h1 className="page-title" style={{ fontSize: '2rem' }}>Admin Panel</h1>
+            <h1 className="page-title" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800 }}>Admin Panel</h1>
           </div>
         </div>
       </motion.div>
 
       {/* ── Stats ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 36 }}>
+      <div className="responsive-grid" style={{ marginBottom: 36 }}>
         {statCards.map(({ icon: Icon, label, value, color }, i) => (
           <motion.div key={label} initial="hidden" animate="visible" variants={fadeUp} custom={i}
-            className="glass-card" style={{ padding: '22px 20px' }}>
+            className="glass-card" style={{ padding: '24px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-md)', background: `rgba(${color === 'var(--accent-cyan)' ? '0,212,255' : color === 'var(--accent-violet-lt)' ? '168,85,247' : color === 'var(--accent-emerald)' ? '16,185,129' : '245,158,11'},0.08)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Icon size={18} color={color} />
               </div>
               <div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '1.8rem', color: 'var(--text-primary)', lineHeight: 1, letterSpacing: '-0.02em' }}>{value.toLocaleString()}</div>
-                <div className="stat-label" style={{ marginTop: 4 }}>{label}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', color: 'var(--text-primary)', lineHeight: 1, letterSpacing: '-0.02em' }}>{value.toLocaleString()}</div>
+                <div className="stat-label" style={{ marginTop: 6 }}>{label}</div>
               </div>
             </div>
           </motion.div>
@@ -117,17 +118,30 @@ const AdminDashboard = () => {
 
       {/* ── Tab Navigation ── */}
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={4}
-        style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-pill)', padding: 4, border: '1px solid rgba(255,255,255,0.06)', marginBottom: 24, width: 'fit-content' }}>
+        style={{ 
+          display: 'flex', 
+          gap: 6, 
+          background: 'rgba(255,255,255,0.03)', 
+          borderRadius: 'var(--radius-pill)', 
+          padding: 5, 
+          border: '1px solid rgba(255,255,255,0.06)', 
+          marginBottom: 24, 
+          width: 'fit-content',
+          maxWidth: '100%',
+          flexWrap: 'wrap'
+        }}>
         {TABS.map(({ id, label, icon: Icon }) => (
           <button key={id} onClick={() => setActiveTab(id)}
             style={{
-              display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px',
+              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px',
               borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer',
-              fontFamily: 'Rajdhani,sans-serif', fontWeight: 600, fontSize: '0.82rem', letterSpacing: '0.08em', textTransform: 'uppercase',
+              fontFamily: 'Rajdhani,sans-serif', fontWeight: 600, fontSize: '0.85rem', letterSpacing: '0.08em', textTransform: 'uppercase',
               background: activeTab === id ? 'var(--gradient-cyan-violet)' : 'transparent',
               color: activeTab === id ? 'white' : 'var(--text-secondary)',
               boxShadow: activeTab === id ? '0 0 16px rgba(0,212,255,0.2)' : 'none',
-              transition: 'all 0.3s ease'
+              transition: 'all 0.3s ease',
+              flex: '1 1 auto',
+              minHeight: '44px'
             }}>
             <Icon size={14} /> {label}
           </button>

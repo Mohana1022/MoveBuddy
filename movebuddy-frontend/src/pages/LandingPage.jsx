@@ -165,7 +165,14 @@ const LandingPage = () => {
           pointerEvents: 'none'
         }} />
 
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center', padding: '80px 24px' }}>
+        <div className="container" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', 
+          gap: 'var(--grid-gap)', 
+          alignItems: 'center', 
+          paddingTop: 'clamp(2rem, 8vw, 6rem)',
+          paddingBottom: 'clamp(2rem, 8vw, 6rem)'
+        }}>
           {/* Left — Text */}
           <motion.div initial="hidden" animate="visible" variants={stagger}>
             <motion.span variants={fadeUp} className="section-label"> Premium Ride-Hailing</motion.span>
@@ -201,10 +208,10 @@ const LandingPage = () => {
             </motion.p>
 
             <motion.div variants={fadeUp} style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <Link to="/register" className="btn btn-primary btn-lg">
+              <Link to="/register" className="btn btn-primary btn-lg btn-sm-100">
                 Start Your Journey <ChevronRight size={18} />
               </Link>
-              <Link to="/login" className="btn btn-secondary btn-lg">
+              <Link to="/login" className="btn btn-secondary btn-lg btn-sm-100">
                 Sign In
               </Link>
             </motion.div>
@@ -253,12 +260,7 @@ const LandingPage = () => {
             </h2>
           </motion.div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 20,
-            alignItems: 'stretch'
-          }}>
+          <div className="responsive-grid">
             <StatCard icon={Car} value={10000} label="Rides Completed" />
             <StatCard icon={TrendingUp} value={200} label="Active Drivers" />
             <StatCard icon={MapPin} value={50} label="Cities Covered" />
@@ -280,7 +282,7 @@ const LandingPage = () => {
             </h2>
           </motion.div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div className="responsive-grid">
             <FeatureCard icon={Zap} title="Instant Matching" desc="Get paired with a nearby driver in under 60 seconds. Our smart algorithm finds the best match for your route." color="var(--accent-cyan)" />
             <FeatureCard icon={Shield} title="100% Verified" desc="Every driver passes rigorous background checks, license verification, and vehicle inspections before joining." color="var(--accent-violet-lt)" />
             <FeatureCard icon={MapPin} title="Live Tracking" desc="Watch your ride in real-time on an interactive map. Share your trip with family for complete peace of mind." color="var(--accent-cyan)" />
@@ -321,10 +323,10 @@ const LandingPage = () => {
           </motion.p>
 
           <motion.div variants={fadeUp} style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" className="btn btn-primary btn-lg">
+            <Link to="/register" className="btn btn-primary btn-lg btn-sm-100">
               Create Free Account <ChevronRight size={18} />
             </Link>
-            <Link to="/register?type=driver" className="btn btn-secondary btn-lg">
+            <Link to="/register?type=driver" className="btn btn-secondary btn-lg btn-sm-100">
               Become a Driver
             </Link>
           </motion.div>

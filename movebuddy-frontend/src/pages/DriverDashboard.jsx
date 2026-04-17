@@ -125,18 +125,18 @@ const DriverDashboard = () => {
 
       {/* ── Stats Grid ── */}
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={1}
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 28 }}>
+        className="responsive-grid" style={{ marginBottom: 28 }}>
         {[
           { icon: TrendingUp, label: 'Total Earnings', value: `₹${stats.earnings.toLocaleString()}`, color: 'var(--accent-cyan)' },
           { icon: CheckCircle, label: 'Rides Done', value: stats.rides, color: 'var(--accent-emerald)' },
           { icon: Star, label: 'Rating', value: '5.0 ★', color: 'var(--accent-gold)' },
         ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="glass-card stat-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 16, padding: '20px 20px' }}>
+          <div key={label} className="glass-card stat-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 16, padding: '24px' }}>
             <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: `rgba(${color === 'var(--accent-cyan)' ? '0,212,255' : color === 'var(--accent-emerald)' ? '16,185,129' : '245,158,11'},0.08)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Icon size={20} color={color} />
             </div>
             <div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '1.6rem', color: 'var(--text-primary)', lineHeight: 1, letterSpacing: '-0.02em' }}>{value}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: 'var(--text-primary)', lineHeight: 1, letterSpacing: '-0.02em' }}>{value}</div>
               <div className="stat-label" style={{ marginTop: 4 }}>{label}</div>
             </div>
           </div>
@@ -146,28 +146,28 @@ const DriverDashboard = () => {
       {/* ── Active Ride / Incoming Rides ── */}
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={2} style={{ marginBottom: 28 }}>
         {activeRide ? (
-          <div className="glass-card glass-card-cyan" style={{ padding: '28px 32px' }}>
+          <div className="glass-card glass-card-cyan" style={{ padding: 'clamp(20px, 4vw, 32px)' }}>
             <span className="badge badge-primary" style={{ marginBottom: 16 }}>● Active Ride</span>
             <div className="flex justify-between items-start" style={{ flexWrap: 'wrap', gap: 20 }}>
-              <div>
+              <div style={{ minWidth: 'min(100%, 280px)' }}>
                 <h2 style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: 4 }}>
                   {activeRide.customer?.name}
                 </h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: 16 }}>{activeRide.customer?.mobileNo}</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ color: 'var(--accent-emerald)', fontSize: '0.7rem' }}>⬤ FROM</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ color: 'var(--accent-emerald)', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em' }}>FROM</span>
                     <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{activeRide.sourceLoc}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ color: 'var(--accent-rose)', fontSize: '0.7rem' }}>⬤ TO</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ color: 'var(--accent-rose)', fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.1em' }}>TO</span>
                     <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{activeRide.destinationLoc}</span>
                   </div>
                 </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '0.72rem', fontFamily: 'Rajdhani,sans-serif', letterSpacing: '0.1em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Expected Fare</p>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: '2.2rem', background: 'var(--gradient-text)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em', lineHeight: 1 }}>₹{activeRide.fare}</p>
+              <div style={{ textAlign: 'left', minWidth: 120 }}>
+                <p style={{ fontSize: '0.72rem', fontFamily: 'Rajdhani,sans-serif', letterSpacing: '0.1em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 4 }}>Estimated Fare</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 'clamp(2rem, 5vw, 2.5rem)', background: 'var(--gradient-text)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em', lineHeight: 1 }}>₹{activeRide.fare}</p>
               </div>
             </div>
 

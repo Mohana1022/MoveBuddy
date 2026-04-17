@@ -34,7 +34,9 @@ function SelectField({ label, name, value, onChange, children }) {
   return (
     <div className="form-group">
       <label className="form-label">{label}</label>
-      <select className="form-input" name={name} value={value} onChange={onChange}>{children}</select>
+      <div style={{ position: 'relative' }}>
+        <select className="form-input" style={{ fontSize: '1rem' }} name={name} value={value} onChange={onChange}>{children}</select>
+      </div>
     </div>
   );
 }
@@ -109,35 +111,50 @@ const RegisterPage = () => {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.8rem', background: 'var(--gradient-text)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+            <div style={{ 
+              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+              background: 'var(--gradient-text)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              textTransform: 'uppercase', letterSpacing: '0.05em'
+            }}>
               MoveBuddy
             </div>
           </Link>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 6, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 8, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Create Your Account
           </p>
         </div>
 
-        <div className="glass-card" style={{ padding: '36px 32px' }}>
+        <div className="glass-card" style={{ padding: 'clamp(24px, 5vw, 40px) clamp(20px, 4vw, 32px)' }}>
           {/* Role Toggle */}
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-pill)', padding: 4, marginBottom: 32, border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'row',
+            background: 'rgba(255,255,255,0.03)', 
+            borderRadius: 'var(--radius-pill)', 
+            padding: 4, 
+            marginBottom: 32, 
+            border: '1px solid rgba(255,255,255,0.06)',
+            flexWrap: 'wrap',
+            gap: 4
+          }}>
             {[
-              { value: 'CUSTOMER', label: '🚗 I\'m a Rider', icon: User },
-              { value: 'DRIVER', label: '🚕 I\'m a Driver', icon: Car },
+              { value: 'CUSTOMER', label: 'Rider', icon: User },
+              { value: 'DRIVER', label: 'Driver', icon: Car },
             ].map(({ value, label }) => (
               <button
                 key={value} type="button"
                 onClick={() => setRole(value)}
-                className={role === value ? 'btn btn-primary btn-block' : 'btn btn-block'}
+                className={role === value ? 'btn btn-primary' : 'btn'}
                 style={{
                   borderRadius: 'var(--radius-pill)',
-                  flex: 1,
+                  flex: '1 1 120px',
                   background: role === value ? 'var(--gradient-cyan-violet)' : 'transparent',
                   boxShadow: role === value ? '0 0 20px rgba(0,212,255,0.2)' : 'none',
                   color: role === value ? 'white' : 'var(--text-secondary)',
                   border: 'none',
                   fontSize: '0.88rem',
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease',
+                  padding: '10px 16px'
                 }}
               >
                 {label}
@@ -147,12 +164,12 @@ const RegisterPage = () => {
 
           <form onSubmit={handleSubmit}>
             {/* ── Shared fields ── */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
               <Field label="Full Name" icon={User} name="name" value={formData.name} onChange={handleChange} placeholder="Your full name" required />
               <Field label="Mobile Number" icon={Phone} type="number" name="mobileNo" value={formData.mobileNo} onChange={handleChange} placeholder="10-digit number" required />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
               <Field label="Age" type="number" name="age" value={formData.age} onChange={handleChange} placeholder="Age" required />
               <SelectField label="Gender" name="gender" value={formData.gender} onChange={handleChange}>
                 <option>Male</option><option>Female</option><option>Other</option>
@@ -174,26 +191,26 @@ const RegisterPage = () => {
                   <hr className="section-sep" style={{ margin: '0 0 24px' }} />
                   <span className="section-label" style={{ display: 'block', marginBottom: 20 }}>🚕 Vehicle Details</span>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
                     <Field label="License No" icon={Shield} type="number" name="licenseNo" value={formData.licenseNo} onChange={handleChange} placeholder="License number" required />
                     <Field label="UPI ID" name="upiID" value={formData.upiID} onChange={handleChange} placeholder="upi@bank" required />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
                     <Field label="Vehicle Name" icon={Car} name="vehicleName" value={formData.vehicleName} onChange={handleChange} placeholder="e.g. Honda City" required />
                     <Field label="Vehicle Number" name="vehicleNo" value={formData.vehicleNo} onChange={handleChange} placeholder="MH 01 AB 1234" required />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
                     <SelectField label="Vehicle Type" name="vehicleType" value={formData.vehicleType} onChange={handleChange}>
                       <option>Bike</option><option>Auto</option><option>Car</option><option>SUV</option><option>Bus</option>
                     </SelectField>
                     <Field label="Model" name="model" value={formData.model} onChange={handleChange} placeholder="e.g. 2022" required />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 16, marginBottom: 24 }}>
                     <Field label="Capacity" type="number" name="vehicleCapacity" value={formData.vehicleCapacity} onChange={handleChange} />
-                    <Field label="Price/KM (₹)" type="number" name="pricePerKM" value={formData.pricePerKM} onChange={handleChange} />
+                    <Field label="Price/KM" type="number" name="pricePerKM" value={formData.pricePerKM} onChange={handleChange} />
                     <Field label="Avg Speed" type="number" name="averageSpeed" value={formData.averageSpeed} onChange={handleChange} />
                   </div>
                 </motion.div>

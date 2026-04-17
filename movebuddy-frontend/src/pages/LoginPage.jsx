@@ -36,7 +36,7 @@ const LoginPage = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '100px 24px 40px',
+      padding: 'clamp(80px, 15vh, 120px) 1.5rem 2rem',
     }}>
       {/* Background glow */}
       <div style={{
@@ -54,17 +54,18 @@ const LoginPage = () => {
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
             <div style={{
-              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.8rem',
+              fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.2rem)',
               background: 'var(--gradient-text)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+              textTransform: 'uppercase', letterSpacing: '0.05em'
             }}>MoveBuddy</div>
           </Link>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 6, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Welcome Back</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 8, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Welcome Back</p>
         </div>
 
-        <div className="glass-card glass-card-cyan" style={{ padding: '36px 32px' }}>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-primary)' }}>Sign In</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: 32 }}>Enter your credentials to access your account.</p>
+        <div className="glass-card glass-card-cyan" style={{ padding: 'clamp(24px, 6vw, 40px) clamp(20px, 5vw, 32px)' }}>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 700, marginBottom: 8, color: 'var(--text-primary)' }}>Sign In</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: 32 }}>Enter your credentials to access your account.</p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div className="form-group">
@@ -74,7 +75,7 @@ const LoginPage = () => {
                 <input
                   id="login-mobile"
                   className="form-input"
-                  style={{ paddingLeft: 42 }}
+                  style={{ paddingLeft: 42, fontSize: '1rem' /* Prevent iOS zoom */ }}
                   type="number"
                   placeholder="10-digit mobile number"
                   value={form.mobileNo}
@@ -91,7 +92,7 @@ const LoginPage = () => {
                 <input
                   id="login-password"
                   className="form-input"
-                  style={{ paddingLeft: 42 }}
+                  style={{ paddingLeft: 42, fontSize: '1rem' }}
                   type="password"
                   placeholder="Your password"
                   value={form.password}
@@ -103,16 +104,16 @@ const LoginPage = () => {
 
             <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={loading} style={{ marginTop: 8 }}>
               {loading
-                ? <><div className="spinner spinner-sm" /> Signing in...</>
+                ? <><div className="spinner spinner-sm" /> Processing...</>
                 : <><LogIn size={18} /> Sign In <ChevronRight size={16} /></>}
             </button>
           </form>
 
           <hr className="section-sep" style={{ margin: '28px 0' }} />
 
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
             Don't have an account?{' '}
-            <Link to="/register" style={{ color: 'var(--accent-cyan)', textDecoration: 'none', fontWeight: 500 }}>
+            <Link to="/register" style={{ color: 'var(--accent-cyan)', textDecoration: 'none', fontWeight: 500, padding: '8px' }}>
               Create one →
             </Link>
           </p>
