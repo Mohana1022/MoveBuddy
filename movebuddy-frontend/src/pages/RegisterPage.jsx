@@ -1,37 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Phone, Lock, Mail, Car, Shield, ChevronRight } from 'lucide-react';
 import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.25 } }
+};
+
+/* Reusable labelled input */
+function Field({ label, icon: Icon, type = 'text', name, value, onChange, placeholder, ...rest }) {
+  return (
+    <div className="form-group">
+      <label className="form-label">{label}</label>
+      <div style={{ position: 'relative' }}>
+        {Icon && <Icon size={15} color="var(--text-muted)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />}
+        <input
+          className="form-input"
+          style={{ paddingLeft: Icon ? 42 : 16 }}
+          type={type} name={name} value={value}
+          onChange={onChange} placeholder={placeholder}
+          {...rest}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SelectField({ label, name, value, onChange, children }) {
+  return (
+    <div className="form-group">
+      <label className="form-label">{label}</label>
+      <select className="form-input" name={name} value={value} onChange={onChange}>{children}</select>
+    </div>
+  );
+}
+
 const RegisterPage = () => {
   const query = new URLSearchParams(useLocation().search);
-  const initialRole = query.get('role') === 'DRIVER' ? 'DRIVER' : 'CUSTOMER';
-  
+  const initialRole = query.get('role') === 'DRIVER' || query.get('type') === 'driver' ? 'DRIVER' : 'CUSTOMER';
+
   const [role, setRole] = useState(initialRole);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Basic shared fields
   const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    gender: 'Male',
-    mobileNo: '',
-    email: '',
-    password: '',
-    latitude: '12.9716', // Default Bangalore
-    longitude: '77.5946',
-    
-    // Driver specific
-    licenseNo: '',
-    upiID: '',
-    vehicleName: '',
-    vehicleNo: '',
-    vehicleType: 'Bike',
-    model: '',
-    vehicleCapacity: 1,
-    pricePerKM: 15,
-    averageSpeed: 40
+    name: '', age: '', gender: 'Male',
+    mobileNo: '', email: '', password: '',
+    latitude: '12.9716', longitude: '77.5946',
+    licenseNo: '', upiID: '',
+    vehicleName: '', vehicleNo: '', vehicleType: 'Bike',
+    model: '', vehicleCapacity: 1, pricePerKM: 15, averageSpeed: 40
   });
 
   const handleChange = (e) => {
@@ -45,23 +67,17 @@ const RegisterPage = () => {
     try {
       if (role === 'CUSTOMER') {
         await authAPI.registerCustomer({
-          name: formData.name,
-          age: parseInt(formData.age),
-          gender: formData.gender,
-          mobileNo: parseInt(formData.mobileNo),
-          emailId: formData.email,
-          password: formData.password,
-          latitude: formData.latitude,
-          longitude: formData.longitude
+          name: formData.name, age: parseInt(formData.age),
+          gender: formData.gender, mobileNo: parseInt(formData.mobileNo),
+          emailId: formData.email, password: formData.password,
+          latitude: formData.latitude, longitude: formData.longitude
         });
         toast.success('Rider account created! Please login.');
       } else {
         await authAPI.registerDriver({
           ...formData,
-          driverName: formData.name,
-          mailId: formData.email,
-          age: parseInt(formData.age),
-          mobileNo: parseInt(formData.mobileNo),
+          driverName: formData.name, mailId: formData.email,
+          age: parseInt(formData.age), mobileNo: parseInt(formData.mobileNo),
           licenseNo: parseInt(formData.licenseNo),
           vehicleCapacity: parseInt(formData.vehicleCapacity),
           pricePerKM: parseInt(formData.pricePerKM),
@@ -71,17 +87,10 @@ const RegisterPage = () => {
       }
       navigate('/login');
     } catch (error) {
-      console.error("Full Registration Error:", error);
       const errorData = error.response?.data;
-      
-      // Force a popup so the user can see exactly what backend sent
-      const errorMsg = errorData?.message || 'Unknown Server Error';
-      const detail = errorData?.data ? JSON.stringify(errorData.data) : '';
-      alert(`Registration Failed!\n\nReason: ${errorMsg}\nDetails: ${detail}`);
-      
+      const errorMsg = errorData?.message || 'Registration failed';
       if (errorData?.data && typeof errorData.data === 'object') {
-        const firstError = Object.values(errorData.data)[0];
-        toast.error(firstError);
+        toast.error(Object.values(errorData.data)[0]);
       } else {
         toast.error(errorMsg);
       }
@@ -91,144 +100,121 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="auth-page" style={{ alignItems: 'flex-start', paddingTop: '40px' }}>
-      <div className="auth-card" style={{ maxWidth: '600px' }}>
-        <div className="auth-logo">
-          <div className="auth-logo-icon">M</div>
-          <h2 className="auth-title">Join MoveBuddy</h2>
-          <p className="auth-subtitle">Register to start your journey</p>
-        </div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '100px 24px 60px' }}>
+      {/* Background glow */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 60% 50% at 50% 30%, rgba(124,58,237,0.05) 0%, transparent 70%)' }} />
 
-        <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: 'var(--radius)', padding: '4px', marginBottom: '24px' }}>
-          <button 
-            type="button"
-            className={`btn btn-block ${role === 'CUSTOMER' ? 'btn-primary' : ''}`}
-            style={{ borderRadius: 'var(--radius-sm)' }}
-            onClick={() => setRole('CUSTOMER')}
-          >
-            I'm a Rider
-          </button>
-          <button 
-            type="button"
-            className={`btn btn-block ${role === 'DRIVER' ? 'btn-primary' : ''}`}
-            style={{ borderRadius: 'var(--radius-sm)' }}
-            onClick={() => setRole('DRIVER')}
-          >
-            I'm a Driver
-          </button>
-        </div>
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: 'easeOut' }} style={{ width: '100%', maxWidth: 600 }}>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div className="form-group">
-              <label className="form-label">{role === 'CUSTOMER' ? 'Full Name' : 'Driver Name'}</label>
-              <input 
-                type="text" 
-                name="name" 
-                className="form-input" 
-                required 
-                value={formData.name}
-                onChange={handleChange} 
-              />
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.8rem', background: 'var(--gradient-text)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              MoveBuddy
             </div>
-            
-            <div className="form-group">
-              <label className="form-label">Internal Email</label>
-              <input 
-                type="email" 
-                name="email" 
-                className="form-input" 
-                required 
-                value={formData.email}
-                onChange={handleChange} 
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Mobile Number</label>
-              <input type="number" name="mobileNo" className="form-input" required value={formData.mobileNo} onChange={handleChange} />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Age</label>
-              <input type="number" name="age" className="form-input" required value={formData.age} onChange={handleChange} />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Gender</label>
-              <select name="gender" className="form-select" value={formData.gender} onChange={handleChange}>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <input type="password" name="password" className="form-input" required value={formData.password} onChange={handleChange} />
-            </div>
-          </div>
-
-          {role === 'DRIVER' && (
-            <div style={{ marginTop: '24px', borderTop: '1px solid var(--border)', paddingTop: '24px' }}>
-              <h3 className="mb-4" style={{ fontSize: '1rem', color: 'var(--primary)' }}>Vehicle & Professional Details</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div className="form-group">
-                  <label className="form-label">License Number</label>
-                  <input type="number" name="licenseNo" className="form-input" required value={formData.licenseNo} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">UPI ID (for payments)</label>
-                  <input type="text" name="upiID" className="form-input" required placeholder="name@upi" value={formData.upiID} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Vehicle Name</label>
-                  <input type="text" name="vehicleName" className="form-input" required placeholder="Activa / Swift" value={formData.vehicleName} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Vehicle Type</label>
-                  <select name="vehicleType" className="form-select" value={formData.vehicleType} onChange={handleChange}>
-                    <option value="Bike">Bike</option>
-                    <option value="Auto">Auto</option>
-                    <option value="Cab">Cab</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Vehicle Number</label>
-                  <input type="text" name="vehicleNo" className="form-input" required placeholder="KA-01-XX-0000" value={formData.vehicleNo} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Model/Year</label>
-                  <input type="text" name="model" className="form-input" required value={formData.model} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Price per KM (₹)</label>
-                  <input type="number" name="pricePerKM" className="form-input" required onChange={handleChange} value={formData.pricePerKM} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Average Speed (km/h)</label>
-                  <input type="number" name="averageSpeed" className="form-input" required onChange={handleChange} value={formData.averageSpeed} />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div style={{ marginTop: '24px' }}>
-            <p className="text-muted mb-4" style={{ fontSize: '0.8rem' }}>
-              By registering, you agree to our Terms of Service and Privacy Policy. Default location will be set via GPS.
-            </p>
-            <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
-              {loading ? <div className="spinner spinner-sm"></div> : 'Create Account'}
-            </button>
-          </div>
-        </form>
-
-        <div className="text-center mt-6">
-          <p className="text-secondary" style={{ fontSize: '0.9rem' }}>
-            Already have an account? <Link to="/login">Login</Link>
+          </Link>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 6, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            Create Your Account
           </p>
         </div>
-      </div>
+
+        <div className="glass-card" style={{ padding: '36px 32px' }}>
+          {/* Role Toggle */}
+          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-pill)', padding: 4, marginBottom: 32, border: '1px solid rgba(255,255,255,0.06)' }}>
+            {[
+              { value: 'CUSTOMER', label: '🚗 I\'m a Rider', icon: User },
+              { value: 'DRIVER', label: '🚕 I\'m a Driver', icon: Car },
+            ].map(({ value, label }) => (
+              <button
+                key={value} type="button"
+                onClick={() => setRole(value)}
+                className={role === value ? 'btn btn-primary btn-block' : 'btn btn-block'}
+                style={{
+                  borderRadius: 'var(--radius-pill)',
+                  flex: 1,
+                  background: role === value ? 'var(--gradient-cyan-violet)' : 'transparent',
+                  boxShadow: role === value ? '0 0 20px rgba(0,212,255,0.2)' : 'none',
+                  color: role === value ? 'white' : 'var(--text-secondary)',
+                  border: 'none',
+                  fontSize: '0.88rem',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            {/* ── Shared fields ── */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <Field label="Full Name" icon={User} name="name" value={formData.name} onChange={handleChange} placeholder="Your full name" required />
+              <Field label="Mobile Number" icon={Phone} type="number" name="mobileNo" value={formData.mobileNo} onChange={handleChange} placeholder="10-digit number" required />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <Field label="Age" type="number" name="age" value={formData.age} onChange={handleChange} placeholder="Age" required />
+              <SelectField label="Gender" name="gender" value={formData.gender} onChange={handleChange}>
+                <option>Male</option><option>Female</option><option>Other</option>
+              </SelectField>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <Field label="Email Address" icon={Mail} type="email" name="email" value={formData.email} onChange={handleChange} placeholder="email@example.com" required />
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <Field label="Password" icon={Lock} type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Create a strong password" required />
+            </div>
+
+            {/* ── Driver-only fields ── */}
+            <AnimatePresence>
+              {role === 'DRIVER' && (
+                <motion.div key="driver-fields" variants={fadeUp} initial="hidden" animate="visible" exit="exit">
+                  <hr className="section-sep" style={{ margin: '0 0 24px' }} />
+                  <span className="section-label" style={{ display: 'block', marginBottom: 20 }}>🚕 Vehicle Details</span>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                    <Field label="License No" icon={Shield} type="number" name="licenseNo" value={formData.licenseNo} onChange={handleChange} placeholder="License number" required />
+                    <Field label="UPI ID" name="upiID" value={formData.upiID} onChange={handleChange} placeholder="upi@bank" required />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                    <Field label="Vehicle Name" icon={Car} name="vehicleName" value={formData.vehicleName} onChange={handleChange} placeholder="e.g. Honda City" required />
+                    <Field label="Vehicle Number" name="vehicleNo" value={formData.vehicleNo} onChange={handleChange} placeholder="MH 01 AB 1234" required />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                    <SelectField label="Vehicle Type" name="vehicleType" value={formData.vehicleType} onChange={handleChange}>
+                      <option>Bike</option><option>Auto</option><option>Car</option><option>SUV</option><option>Bus</option>
+                    </SelectField>
+                    <Field label="Model" name="model" value={formData.model} onChange={handleChange} placeholder="e.g. 2022" required />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+                    <Field label="Capacity" type="number" name="vehicleCapacity" value={formData.vehicleCapacity} onChange={handleChange} />
+                    <Field label="Price/KM (₹)" type="number" name="pricePerKM" value={formData.pricePerKM} onChange={handleChange} />
+                    <Field label="Avg Speed" type="number" name="averageSpeed" value={formData.averageSpeed} onChange={handleChange} />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={loading}>
+              {loading
+                ? <><div className="spinner spinner-sm" /> Creating Account...</>
+                : <>{role === 'CUSTOMER' ? 'Create Rider Account' : 'Register as Driver'} <ChevronRight size={16} /></>}
+            </button>
+          </form>
+
+          <hr className="section-sep" style={{ margin: '28px 0' }} />
+
+          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: 'var(--accent-cyan)', textDecoration: 'none', fontWeight: 500 }}>Sign in →</Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };
