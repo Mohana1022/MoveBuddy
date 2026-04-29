@@ -46,8 +46,8 @@ public class SecurityConfig {
 
             // Authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Public: registration & login
-                .requestMatchers("/auth/**").permitAll()
+                // Public: registration, login, & health check
+                .requestMatchers("/auth/**", "/health").permitAll()
                 // Customer-only endpoints
                 .requestMatchers("/customer/**").hasAuthority("CUSTOMER")
                 // Driver-only endpoints
