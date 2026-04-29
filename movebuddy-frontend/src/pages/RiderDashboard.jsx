@@ -97,26 +97,45 @@ const RiderDashboard = () => {
       <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={2} style={{ marginBottom: 28 }}>
         <span className="section-label" style={{ display: 'block', marginBottom: 16 }}>Quick Actions</span>
         <div className="responsive-grid">
-          <Link to="/book-ride" style={{ textDecoration: 'none' }}>
-            <motion.div whileHover={{ y: -4 }} className="glass-card"
-              style={{ padding: 'clamp(20px, 4vw, 28px) 24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
+          {activeRide ? (
+            <div className="glass-card" style={{ padding: 'clamp(20px, 4vw, 28px) 24px', opacity: 0.7, cursor: 'not-allowed', display: 'flex', flexDirection: 'column', gap: 12, height: '100%', border: '1px solid rgba(245,158,11,0.2)' }}>
               <div style={{
                 width: 52, height: 52, borderRadius: 'var(--radius-md)',
-                background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 16px rgba(0,212,255,0.1)'
+                background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
-                <Navigation size={22} color="var(--accent-cyan)" />
+                <AlertTriangle size={22} color="var(--accent-gold)" />
               </div>
               <div>
-                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 'clamp(1rem, 1.2vw, 1.15rem)', color: 'var(--text-primary)', marginBottom: 4 }}>Book a Ride</p>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Find nearby drivers instantly</p>
+                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 'clamp(1rem, 1.2vw, 1.15rem)', color: 'var(--text-primary)', marginBottom: 4 }}>Ride Ongoing</p>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Finish your current trip to book again</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-cyan)', fontSize: '0.8rem', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.05em', marginTop: 'auto' }}>
-                BOOK NOW <ChevronRight size={14} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-gold)', fontSize: '0.8rem', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.05em', marginTop: 'auto' }}>
+                ACTIVE RIDE <Clock size={14} />
               </div>
-            </motion.div>
-          </Link>
+            </div>
+          ) : (
+            <Link to="/book-ride" style={{ textDecoration: 'none' }}>
+              <motion.div whileHover={{ y: -4 }} className="glass-card"
+                style={{ padding: 'clamp(20px, 4vw, 28px) 24px', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: 'var(--radius-md)',
+                  background: 'rgba(0,212,255,0.08)', border: '1px solid rgba(0,212,255,0.2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 0 16px rgba(0,212,255,0.1)'
+                }}>
+                  <Navigation size={22} color="var(--accent-cyan)" />
+                </div>
+                <div>
+                  <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 'clamp(1rem, 1.2vw, 1.15rem)', color: 'var(--text-primary)', marginBottom: 4 }}>Book a Ride</p>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Find nearby drivers instantly</p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-cyan)', fontSize: '0.8rem', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600, letterSpacing: '0.05em', marginTop: 'auto' }}>
+                  BOOK NOW <ChevronRight size={14} />
+                </div>
+              </motion.div>
+            </Link>
+          )}
 
           <Link to="/rider-history" style={{ textDecoration: 'none' }}>
             <motion.div whileHover={{ y: -4 }} className="glass-card"

@@ -299,27 +299,43 @@ public class CustomerService {
 //       LOCATION VALIDATION CORE
 
     private Map<String, Double> getCoordinatesSafe(String place) {
+        // 1. Basic format validation
+        if (place == null || place.isBlank()) {
+            throw new InvalidLocationException("Location cannot be empty");
+        }
+
+        String trimmedPlace = place.trim();
+        
+        // No multiple spaces allowed (e.g. "Mumbai   New")
+        if (trimmedPlace.contains("  ")) {
+            throw new InvalidLocationException("Multiple consecutive spaces are not allowed");
+        }
+
+        // Only alphanumeric and single spaces allowed
+        if (!trimmedPlace.matches("^[a-zA-Z0-9 ]+$")) {
+            throw new InvalidLocationException("Location must only contain letters, numbers, and spaces");
+        }
 
         String url = "https://us1.locationiq.com/v1/search.php?key=" + apiKey +
-                "&format=json&q=" + URLEncoder.encode(place, StandardCharsets.UTF_8);
+                "&format=json&q=" + URLEncoder.encode(trimmedPlace, StandardCharsets.UTF_8);
 
         List<Map<String, Object>> res = restTemplate.getForObject(url, List.class);
 
         if (res == null || res.isEmpty()) {
-            throw new InvalidLocationException();
+            throw new InvalidLocationException("Location not found");
         }
 
         Map<String, Object> loc = res.get(0);
+        String type = String.valueOf(loc.get("type")).toLowerCase();
+        String importance = String.valueOf(loc.get("importance")); // Usually higher for cities
 
-        String type = String.valueOf(loc.get("type"));
-
+        // Tightened list of allowed types to focus on regions/cities
         Set<String> allowedTypes = Set.of(
-                "city", "town", "village", "administrative", "state", "county"
+                "city", "town", "village", "administrative", "state", "county", "region"
         );
 
-        if (!allowedTypes.contains(type.toLowerCase())) {
-            throw new InvalidLocationException(
-            );
+        if (!allowedTypes.contains(type)) {
+            throw new InvalidLocationException("Please enter a valid city, town, or state name");
         }
 
         double lat = Double.parseDouble(loc.get("lat").toString());
@@ -394,8 +410,17 @@ public class CustomerService {
         // 2. Fetch all bookings of the customer
         List<Booking> allBookings = bookingRepo.findByCustomerMobileNo(mobileNo);
 
+        // Return empty history if customer has no bookings
         if (allBookings.isEmpty()) {
-            throw new NoCurrentBookingException();
+            BookingHistoryDto emptyDto = new BookingHistoryDto();
+            emptyDto.setHistory(new ArrayList<>());
+            emptyDto.setTotalAmount(0);
+
+            ResponseStructure<BookingHistoryDto> response = new ResponseStructure<>();
+            response.setStatuscode(HttpStatus.OK.value());
+            response.setMessage("No bookings found");
+            response.setData(emptyDto);
+            return ResponseEntity.ok(response);
         }
 
         List<RideDetailsDTO> historyList = new ArrayList<>();
@@ -449,7 +474,14 @@ public class CustomerService {
                 .orElseThrow(BookingNotFoundException::new);
 
         customer.setPenality(customer.getPenality() + 1);
+        customer.setBookingflag(false); // Reset the flag so they can book again
+        
         booking.setBookingStatus("cancelled by customer");
+        
+        // Also free up the vehicle if it was assigned
+        if (booking.getVehicle() != null) {
+            booking.getVehicle().setAvailableStatus("Available");
+        }
 
         customerRepo.save(customer);
         bookingRepo.save(booking);

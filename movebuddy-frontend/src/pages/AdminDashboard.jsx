@@ -156,12 +156,13 @@ const AdminDashboard = () => {
         {activeTab === 'drivers' && (
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Driver</th><th>Mobile</th><th>Vehicle</th><th>City</th><th>Status</th><th>Action</th></tr></thead>
+              <thead><tr><th>Driver</th><th>Mobile</th><th>Rating</th><th>Vehicle</th><th>City</th><th>Status</th><th>Action</th></tr></thead>
               <tbody>
                 {drivers.map(d => (
                   <tr key={d.mobileno || d.mobileNo}>
                     <td style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{d.name}</td>
                     <td>{d.mobileno || d.mobileNo}</td>
+                    <td style={{ color: 'var(--accent-gold)', fontWeight: 700 }}>{d.rating?.toFixed(1) ?? '0.0'} ★</td>
                     <td style={{ fontSize: '0.82rem' }}>{d.vehicle?.vehicleName} · {d.vehicle?.vehicleNo}</td>
                     <td>{d.vehicle?.currentCity}</td>
                     <td>

@@ -6,5 +6,9 @@ public class InvalidLocationException extends RuntimeException{
 		super();
 	}
 
+	public InvalidLocationException(String message) {
+		super(message);
+	}
+
 	
 }

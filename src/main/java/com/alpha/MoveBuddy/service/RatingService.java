@@ -7,17 +7,21 @@ import com.alpha.MoveBuddy.Repository.RatingRepository;
 import com.alpha.MoveBuddy.ResponseStructure;
 import com.alpha.MoveBuddy.entity.Booking;
 import com.alpha.MoveBuddy.entity.Customer;
+import com.alpha.MoveBuddy.entity.Driver;
 import com.alpha.MoveBuddy.entity.Rating;
+import com.alpha.MoveBuddy.Repository.DriverRepository;
 import com.alpha.MoveBuddy.exception.BookingNotFoundException;
 import com.alpha.MoveBuddy.exception.CustomerNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
 @Service
+@Transactional
 public class RatingService {
 
     @Autowired
@@ -28,6 +32,9 @@ public class RatingService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private DriverRepository driverRepository;
 
     /**
      * Submit a rating for a completed ride.
@@ -55,7 +62,7 @@ public class RatingService {
             throw new RuntimeException("You have already rated this ride");
         }
 
-        // 5. Build and save Rating
+        // 5. Build and save Rating (use saveAndFlush to ensure it's in the DB for the AVG query)
         Rating rating = new Rating();
         rating.setBooking(booking);
         rating.setCustomer(booking.getCustomer());
@@ -63,7 +70,19 @@ public class RatingService {
         rating.setStars(dto.getStars());
         rating.setComment(dto.getComment());
 
-        Rating saved = ratingRepository.save(rating);
+        Rating saved = ratingRepository.saveAndFlush(rating);
+
+        // 6. Sync Driver's aggregate rating
+        Driver driver = saved.getDriver();
+        if (driver != null) {
+            Double avg = ratingRepository.findAverageRatingByDriverId(driver.getId());
+            double finalAvg = (avg != null) ? avg : (double) dto.getStars();
+            
+            // Round to 1 decimal place (e.g. 4.666 -> 4.7)
+            double roundedAvg = Math.round(finalAvg * 10.0) / 10.0;
+            driver.setRating(roundedAvg);
+            driverRepository.save(driver);
+        }
 
         ResponseStructure<Rating> rs = new ResponseStructure<>();
         rs.setStatuscode(HttpStatus.OK.value());

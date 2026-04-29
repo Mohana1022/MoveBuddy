@@ -129,7 +129,7 @@ const DriverDashboard = () => {
         {[
           { icon: TrendingUp, label: 'Total Earnings', value: `₹${stats.earnings.toLocaleString()}`, color: 'var(--accent-cyan)' },
           { icon: CheckCircle, label: 'Rides Done', value: stats.rides, color: 'var(--accent-emerald)' },
-          { icon: Star, label: 'Rating', value: '5.0 ★', color: 'var(--accent-gold)' },
+          { icon: Star, label: 'Rating', value: `${profile?.rating?.toFixed(1) || '0.0'} ★`, color: 'var(--accent-gold)' },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="glass-card stat-card" style={{ flexDirection: 'row', alignItems: 'center', gap: 16, padding: '24px' }}>
             <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-md)', background: `rgba(${color === 'var(--accent-cyan)' ? '0,212,255' : color === 'var(--accent-emerald)' ? '16,185,129' : '245,158,11'},0.08)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

@@ -32,7 +32,7 @@ public class Driver {
 	private Long mobileno;
 	private String gender;
 	private String mailid;
-	
+	private double rating = 0.0;
 
 	
 	@OneToOne(mappedBy = "driver", cascade = CascadeType.ALL,fetch=FetchType.EAGER)
@@ -145,8 +145,16 @@ public class Driver {
 		this.users = users;
 	}
 
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+
 	public Driver(long licenseNo, String upiid, String name, String status, int age, Long mobileno, String gender,
-			String mailid, Vehicle vehicle, List<Booking> bookings, Users users) {
+			String mailid, double rating, Vehicle vehicle, List<Booking> bookings, Users users) {
 		super();
 		this.licenseNo = licenseNo;
 		this.upiid = upiid;
@@ -156,6 +164,7 @@ public class Driver {
 		this.mobileno = mobileno;
 		this.gender = gender;
 		this.mailid = mailid;
+		this.rating = rating;
 		this.vehicle = vehicle;
 		this.bookings = bookings;
 		this.users = users;
@@ -169,7 +178,7 @@ public class Driver {
 	public String toString() {
 		return "Driver [id=" + id + ", licenseNo=" + licenseNo + ", upiid=" + upiid + ", name=" + name + ", status="
 				+ status + ", age=" + age + ", mobileno=" + mobileno + ", gender=" + gender + ", mailid=" + mailid
-				+ ", vehicle=" + vehicle + ", bookings=" + bookings + ", users=" + users + "]";
+				+ ", rating=" + rating + ", vehicle=" + vehicle + ", bookings=" + bookings + ", users=" + users + "]";
 	}
 
 	

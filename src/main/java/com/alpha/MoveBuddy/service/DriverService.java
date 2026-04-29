@@ -226,6 +226,7 @@ public class DriverService {
     }
 
     // ---- DRIVER CANCELLATION ----
+    @org.springframework.transaction.annotation.Transactional
     public void cancelBooking(int driverId, LocalDate bookingDate) {
         Driver driver = dr.findById(driverId)
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
@@ -235,6 +236,18 @@ public class DriverService {
 
         if ("canceled by driver".equalsIgnoreCase(booking.getBookingStatus())) {
             throw new RuntimeException("Booking already canceled");
+        }
+
+        // Reset customer flag
+        if (booking.getCustomer() != null) {
+            booking.getCustomer().setBookingflag(false);
+            cr.save(booking.getCustomer());
+        }
+
+        // Reset vehicle availability
+        if (booking.getVehicle() != null) {
+            booking.getVehicle().setAvailableStatus("Available");
+            vr.save(booking.getVehicle());
         }
 
         long cancellationCount = br.findByVehicle_Id(driverId).stream()

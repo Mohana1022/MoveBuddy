@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Navigation, Clock, ChevronRight, Search, ArrowRight } from 'lucide-react';
+import { MapPin, Navigation, Clock, ChevronRight, Search, ArrowRight, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { customerAPI, bookingAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -18,6 +18,19 @@ const BookRidePage = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showVehicles, setShowVehicles] = useState(false);
   const [rideDist, setRideDist] = useState(0);
+
+  React.useEffect(() => {
+    const checkActive = async () => {
+      try {
+        const res = await bookingAPI.getActiveBooking(user.mobileNo);
+        if (res.data.statuscode === 200 && res.data.data) {
+          toast.success('Wait, you have an active ride! Redirecting...', { icon: '🚕' });
+          navigate(`/track-ride/${res.data.data.id}`);
+        }
+      } catch (e) { /* no active booking, ignore */ }
+    };
+    if (user?.mobileNo) checkActive();
+  }, [user.mobileNo, navigate]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -176,8 +189,13 @@ const BookRidePage = () => {
                         <p style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: 3 }}>
                           {v.v.vehicleName || v.v.name}
                         </p>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                           {v.v.model} · {v.v.type}
+                          {v.v.driver?.rating > 0 && (
+                            <span style={{ color: 'var(--accent-gold)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
+                              · <Star size={12} fill="currentColor" /> {v.v.driver.rating.toFixed(1)}
+                            </span>
+                          )}
                         </p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                           <Clock size={12} color="var(--text-muted)" />
